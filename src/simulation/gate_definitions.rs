@@ -1,8 +1,8 @@
+use crate::simulation::wire_values::*;
 use std::collections::HashMap;
 
-// TODO: maybe replace Vec<i32> with some custom type like Trit(i32) or smth
 pub trait GateDefinition {
-    fn compute(&mut self, _inputs: Vec<i32>) -> Vec<i32> {
+    fn compute(&self, _inputs: &[Trit]) -> Vec<Trit> {
         vec![]
     }
 }
@@ -16,10 +16,11 @@ impl InbuiltGate {
     }
 }
 impl GateDefinition for InbuiltGate {
-    fn compute(&mut self, inputs: Vec<i32>) -> Vec<i32> {
+    fn compute(&self, inputs: &[Trit]) -> Vec<Trit> {
         match self.name {
-            "inc" => inputs.iter().map(|i| (i + 1) % 2).collect(),
+            "inc" => inputs.iter().map(|i| i.increment()).collect(),
             _ => {
+                eprintln!("TODO: add definition for {} gate", self.name);
                 vec![]
             }
         }
