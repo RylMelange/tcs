@@ -1,4 +1,4 @@
 pub mod gates;
-pub mod circuit;
+pub mod simulator;
 pub mod gate_definitions;
 pub mod wire_values;

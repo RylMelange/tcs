@@ -1,4 +1,14 @@
-trait TernaryValue {
+#![allow(unused)]
+pub enum TernaryType {
+    Trit,
+    ThreeTrit,
+    NineTrit,
+}
+
+pub enum TernaryValue {
+    Trit(Trit),
+    ThreeTrit(ThreeTrit),
+    NineTrit(NineTrit),
 }
 
 pub enum Trit {
@@ -10,18 +20,13 @@ pub enum Trit {
 impl Trit {
     pub fn increment(&self) -> Trit {
         match self {
-            Self::Negative => {Self::Zero},
-            Self::Zero => {Self::Positive},
-            Self::Positive => {Self::Negative},
+            Self::Negative => Self::Zero,
+            Self::Zero => Self::Positive,
+            Self::Positive => Self::Negative,
         }
     }
 }
-impl TernaryValue for Trit {}
 
 pub struct ThreeTrit(i8);
-impl ThreeTrit { }
-impl TernaryValue for ThreeTrit {}
 
 pub struct NineTrit(i16);
-impl NineTrit { }
-impl TernaryValue for NineTrit {}

@@ -1,16 +1,25 @@
 #![allow(unused)]
+use std::fmt;
+
 use crate::simulation::gate_definitions::*;
-use crate::simulation::gates::GateType::*;
-use crate::simulation::wire_values::Trit;
+use crate::simulation::wire_values::*;
+
+pub type Ports = Vec<TernaryValue>;
 
 pub struct Gate {
     id: GateID,
-    inputs: Vec<i32>,
-    pub outputs: Vec<Trit>,
-    gate_type: GateType,
+    pub inputs: Ports,
+    pub outputs: Ports,
+    pub gate_type_id: GateTypeID,
 }
 
-struct GateID(u64);
+#[derive(Eq, Hash, PartialEq, Clone, Copy)]
+pub struct GateID(u64);
+impl fmt::Display for GateID {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f,"{}",self.0)
+    }
+}
 
 impl Gate {
     pub fn new(id: u64) -> Self {
@@ -18,29 +27,7 @@ impl Gate {
             id: GateID(id),
             inputs: vec![],
             outputs: vec![],
-            gate_type: Inbuilt(InbuiltGate::new("inc")),
-        }
-    }
-
-    pub fn compute(&mut self) {
-        self.outputs = self.gate_type.compute(&[]);
-    }
-}
-
-enum GateType {
-    Inbuilt(InbuiltGate),
-    TruthTable(TruthTableGate),
-    Code(CodeGate),
-    Recursive(RecursiveGate),
-}
-
-impl GateType {
-    pub fn compute(&mut self, inputs: &[Trit]) -> Vec<Trit> {
-        match self {
-            GateType::Inbuilt(gate) => gate.compute(inputs),
-            GateType::TruthTable(gate) => gate.compute(inputs),
-            GateType::Code(gate) => gate.compute(inputs),
-            GateType::Recursive(gate) => gate.compute(inputs),
+            gate_type_id: GateTypeID(0),
         }
     }
 }

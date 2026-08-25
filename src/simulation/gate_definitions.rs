@@ -1,40 +1,50 @@
-use crate::simulation::wire_values::*;
+#![allow(unused)]
+use crate::simulation::{gate_definitions::GateImplementation::Code, wire_values::*};
 use std::collections::HashMap;
 
-pub trait GateDefinition {
-    fn compute(&self, _inputs: &[Trit]) -> Vec<Trit> {
+#[derive(Eq, Hash, PartialEq)]
+pub struct GateTypeID(pub u8);
+
+pub type GateDefinitions = HashMap<GateTypeID, GateDefinition>;
+
+pub enum GateImplementation {
+    Code(CodeGate),
+    Builtin(BuiltinGate),
+    TruthTable(TruthTableGate),
+    Recursive(RecursiveGate),
+}
+
+pub struct GateDefinition {
+    pub implementation: GateImplementation,
+    gate_type_id: GateTypeID,
+}
+
+impl GateDefinition {
+    pub fn compute(&self, inputs: &Vec<TernaryValue>) -> Vec<TernaryValue> {
+        match &self.implementation {
+            Code(gate) => gate.compute(&self.gate_type_id,inputs),
+            _ => {}
+        }
         vec![]
     }
 }
 
-pub struct InbuiltGate {
-    name: &'static str,
-}
-impl InbuiltGate {
-    pub fn new(name: &'static str) -> Self {
-        Self { name }
-    }
-}
-impl GateDefinition for InbuiltGate {
-    fn compute(&self, inputs: &[Trit]) -> Vec<Trit> {
-        match self.name {
-            "inc" => inputs.iter().map(|i| i.increment()).collect(),
-            _ => {
-                eprintln!("TODO: add definition for {} gate", self.name);
-                vec![]
-            }
-        }
-    }
-}
-
-pub struct TruthTableGate {
-    truth_table: HashMap<String, i32>,
-}
-
-impl GateDefinition for TruthTableGate {}
-
 pub struct CodeGate {}
-impl GateDefinition for CodeGate {}
+impl CodeGate {
+    pub fn compute(&self, gate_type_id: &GateTypeID, inputs: &Vec<TernaryValue>) {}
+}
+
+pub struct BuiltinGate {}
+impl BuiltinGate {
+    pub fn compute(&self, gate_type_id: &GateTypeID, inputs: &Vec<TernaryValue>) {}
+}
+
+pub struct TruthTableGate {}
+impl TruthTableGate {
+    pub fn compute(&self, gate_type_id: &GateTypeID, inputs: &Vec<TernaryValue>) {}
+}
 
 pub struct RecursiveGate {}
-impl GateDefinition for RecursiveGate {}
+impl RecursiveGate {
+    pub fn compute(&self, gate_type_id: &GateTypeID, inputs: &Vec<TernaryValue>) {}
+}
