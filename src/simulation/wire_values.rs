@@ -5,22 +5,22 @@ pub enum TernaryType {
     NineTrit,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum TernaryValue {
-    Trit(Trit),
-    ThreeTrit(ThreeTrit),
-    NineTrit(NineTrit),
+    Trit(TritValue),
+    ThreeTrit(ThreeTritValue),
+    NineTrit(NineTritValue),
 }
 
-#[derive(Clone)]
-pub enum Trit {
+#[derive(Clone, Eq, PartialEq)]
+pub enum TritValue {
     Negative,
     Zero,
     Positive,
 }
 
-impl Trit {
-    pub fn increment(&self) -> Trit {
+impl TritValue {
+    pub fn increment(&self) -> Self {
         match self {
             Self::Negative => Self::Zero,
             Self::Zero => Self::Positive,
@@ -29,8 +29,8 @@ impl Trit {
     }
 }
 
-#[derive(Clone)]
-pub struct ThreeTrit(i8);
+#[derive(Clone, Eq, PartialEq)]
+pub struct ThreeTritValue(i8);
 
-#[derive(Clone)]
-pub struct NineTrit(i16);
+#[derive(Clone, Eq, PartialEq)]
+pub struct NineTritValue(i16);

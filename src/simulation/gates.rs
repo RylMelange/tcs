@@ -27,7 +27,7 @@ impl Gate {
             id: GateID(id),
             inputs: vec![],
             outputs: vec![],
-            gate_type_id: GateTypeID(0),
+            gate_type_id: "inc".to_string(),
         }
     }
 }
