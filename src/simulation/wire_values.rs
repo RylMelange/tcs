@@ -5,12 +5,14 @@ pub enum TernaryType {
     NineTrit,
 }
 
+#[derive(Clone)]
 pub enum TernaryValue {
     Trit(Trit),
     ThreeTrit(ThreeTrit),
     NineTrit(NineTrit),
 }
 
+#[derive(Clone)]
 pub enum Trit {
     Negative,
     Zero,
@@ -27,6 +29,8 @@ impl Trit {
     }
 }
 
+#[derive(Clone)]
 pub struct ThreeTrit(i8);
 
+#[derive(Clone)]
 pub struct NineTrit(i16);

@@ -1,10 +1,14 @@
 use crate::simulation::{
-    gate_definitions::{GateDefinition, GateTypeID, },
+    gate_definitions::{GateDefinition, GateTypeID},
     gates::{Gate, GateID},
 };
 use std::collections::{HashMap, HashSet};
 
-type Output = Vec<GateID>;
+type Output = Vec<InPort>;
+pub struct InPort {
+    gate_id: GateID,
+    port_index: usize
+}
 
 pub struct Simulator {
     pub graph: HashMap<GateID, Vec<Output>>,
@@ -29,15 +33,33 @@ impl Simulator {
         }
 
         for gate_id in self.sorted_gates.as_ref().unwrap() {
-            if let Some(gate) = self.gates.get(&gate_id) {
+            let outputs;
+
+            if let Some(gate) = self.gates.get_mut(&gate_id) {
                 let definition = implementations
                     .get(&gate.gate_type_id)
                     .expect("gate definitions missing!");
-                definition.compute(&gate.inputs);
-                // TODO: propagate outputs
+                outputs = definition.compute(&gate.inputs);
+                gate.outputs = outputs.clone();
             } else {
-                println!("{gate_id} was listed in sorted_gates, but not gates!")
+                println!("{gate_id} was listed in sorted_gates, but not gates!");
+                continue;
             }
+
+            if let Some(targets) = self.graph.get(&gate_id) {
+                for index in 0..outputs.len() {
+                    for target in &targets[index] {
+                        self.gates
+                            .get_mut(&target.gate_id)
+                            .expect("couldn't find target gate").inputs[target.port_index]
+                             = outputs[index].clone();
+                    }
+                }
+            } else {
+                println!("{gate_id} didn't seem to have target gates!");
+                continue;
+            }
+
         }
     }
 
@@ -70,7 +92,7 @@ fn dfs_visit(
 
     for output in graph.get(&node).unwrap() {
         for target in output {
-            dfs_visit(*target, sorted_gates, temporary_gates, graph);
+            dfs_visit(target.gate_id, sorted_gates, temporary_gates, graph);
         }
     }
 
