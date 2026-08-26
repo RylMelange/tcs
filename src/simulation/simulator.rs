@@ -1,17 +1,26 @@
 use crate::simulation::{
     gate_definitions::{GateDefinition, GateTypeID},
     gates::{Gate, GateID},
+    wire_values::{TernaryValue, TritValue},
 };
 use std::collections::{HashMap, HashSet};
 
-type Output = Vec<InPort>;
+type Target = Vec<InPort>;
 pub struct InPort {
     gate_id: GateID,
-    port_index: usize
+    port_index: usize,
+}
+impl InPort {
+    pub fn new(gate_id: GateID, port_index: usize) -> Self {
+        Self {
+            gate_id: gate_id,
+            port_index,
+        }
+    }
 }
 
 pub struct Simulator {
-    pub graph: HashMap<GateID, Vec<Output>>,
+    graph: HashMap<GateID, Vec<Target>>,
     pub gates: HashMap<GateID, Gate>,
     pending_gates: Vec<GateID>,
     sorted_gates: Option<Vec<GateID>>,
@@ -26,6 +35,17 @@ impl Simulator {
             sorted_gates: None,
         }
     }
+
+    pub fn insert_gate(&mut self, gate_id: GateID, definition: &GateDefinition, targets: Vec<Target>) {
+        self.graph.insert(gate_id.clone(), targets);
+        let gate_type_id = definition.gate_type_id.clone();
+        let inputs = definition.signature.inputs.iter().map(|t| t.init()).collect();
+        let outputs = definition.signature.outputs.iter().map(|t| t.init()).collect();
+        self.gates
+            .insert(gate_id, Gate::new(gate_id, gate_type_id, inputs, outputs));
+    }
+
+    pub fn insert_pending(&mut self, gate_id: GateID) {self.pending_gates.push(gate_id)}
 
     pub fn step(&mut self, implementations: HashMap<GateTypeID, GateDefinition>) {
         if self.sorted_gates.is_none() {
@@ -51,15 +71,14 @@ impl Simulator {
                     for target in &targets[index] {
                         self.gates
                             .get_mut(&target.gate_id)
-                            .expect("couldn't find target gate").inputs[target.port_index]
-                             = outputs[index].clone();
+                            .expect("couldn't find target gate")
+                            .inputs[target.port_index] = outputs[index].clone();
                     }
                 }
             } else {
                 println!("{gate_id} didn't seem to have target gates!");
                 continue;
             }
-
         }
     }
 
@@ -78,7 +97,7 @@ fn dfs_visit(
     node: GateID,
     sorted_gates: &mut Vec<GateID>,
     temporary_gates: &mut HashSet<GateID>,
-    graph: &HashMap<GateID, Vec<Output>>,
+    graph: &HashMap<GateID, Vec<Target>>,
 ) {
     if sorted_gates.contains(&node) {
         return;

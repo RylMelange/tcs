@@ -1,7 +1,10 @@
 #![allow(unused)]
 use crate::simulation::{
     gate_definitions::GateImplementation::*,
-    wire_values::TernaryValue::{self, *},
+    wire_values::{
+        TernaryType,
+        TernaryValue::{self, *},
+    },
 };
 use std::collections::HashMap;
 
@@ -16,13 +19,37 @@ pub enum GateImplementation {
     Code(CodeGate),
 }
 
+pub struct GateSignature {
+    pub inputs: Vec<TernaryType>,
+    pub outputs: Vec<TernaryType>,
+}
+
 pub struct GateDefinition {
+    pub gate_type_id: GateTypeID,
+    pub signature: GateSignature,
     pub implementation: GateImplementation,
-    gate_type_id: GateTypeID,
 }
 
 impl GateDefinition {
+    pub fn new(
+        gate_type_id: &str,
+        input_signature: Vec<TernaryType>,
+        output_signature: Vec<TernaryType>,
+        implementation: GateImplementation,
+    ) -> Self {
+        Self {
+            gate_type_id: gate_type_id.to_string(),
+            signature: GateSignature {
+                inputs: input_signature,
+                outputs: output_signature,
+            },
+            implementation,
+        }
+    }
+
     pub fn compute(&self, inputs: &Vec<TernaryValue>) -> Vec<TernaryValue> {
+        self.verify_signature(inputs);
+
         match &self.implementation {
             Builtin(gate) => gate.compute(&self.gate_type_id, inputs),
             TruthTable(gate) => gate.compute(&self.gate_type_id, inputs),
@@ -30,42 +57,49 @@ impl GateDefinition {
             Code(gate) => gate.compute(&self.gate_type_id, inputs),
         }
     }
+
+    fn verify_signature(&self, inputs: &Vec<TernaryValue>) {
+        if inputs.len() != self.signature.inputs.len()
+            || inputs
+                .iter()
+                .map(|i| i.ternary_type())
+                .collect::<Vec<TernaryType>>()
+                != self.signature.inputs
+        {
+            // TODO:make an actual error here
+            panic!()
+        }
+    }
 }
 
-pub struct BuiltinGate {}
+pub struct BuiltinGate {
+    pub compute_function: fn(inputs: &Vec<TernaryValue>) -> Vec<TernaryValue>,
+}
+
 impl BuiltinGate {
     pub fn compute(
         &self,
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        match gate_type_id.as_str() {
-            "inc" => inputs
-                .iter()
-                .map(|v| {
-                    match v {
-                        Trit(val) => Trit(val.increment()),
-                        ThreeTrit(val) => ThreeTrit(val),
-                        NineTrit(val) => NineTrit(val),
-                    };
-                })
-                .collect(),
-            _ => {
-                println!("Unknown gate {gate_type_id}!")
-            }
-        }
-        vec![]
+        (self.compute_function)(inputs)
     }
 }
 
-pub struct TruthTableGate {}
+pub struct TruthTableGate {
+    truth_table: HashMap<Vec<TernaryValue>, Vec<TernaryValue>>,
+}
 impl TruthTableGate {
     pub fn compute(
         &self,
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        vec![]
+        if let Some(outputs) = self.truth_table.get(inputs) {
+            outputs.clone()
+        } else {
+            panic!("Unknown truthtable gate {gate_type_id}!")
+        }
     }
 }
 
@@ -76,7 +110,7 @@ impl RecursiveGate {
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        vec![]
+        panic!("recursive gates are not implemented yet");
     }
 }
 
@@ -87,6 +121,6 @@ impl CodeGate {
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        vec![]
+        panic!("code gates are not implemented yet");
     }
 }
