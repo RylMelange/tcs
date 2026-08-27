@@ -1,7 +1,6 @@
 use crate::simulation::{
     gate_definitions::{GateDefinition, GateTypeID},
     gates::{Gate, GateID},
-    wire_values::{TernaryValue, TritValue},
 };
 use std::collections::{HashMap, HashSet};
 

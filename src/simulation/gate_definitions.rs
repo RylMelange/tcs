@@ -2,8 +2,9 @@
 use crate::simulation::{
     gate_definitions::GateImplementation::*,
     wire_values::{
-        TernaryType,
+        TernaryType::{self, NineTrit, ThreeTrit, Trit},
         TernaryValue::{self, *},
+        TritValue,
     },
 };
 use std::collections::HashMap;
@@ -58,7 +59,7 @@ impl GateDefinition {
         }
     }
 
-    fn verify_signature(&self, inputs: &Vec<TernaryValue>) {
+    fn verify_signature(&self, inputs: &Vec<TernaryValue>) -> Vec<TernaryValue> {
         if inputs.len() != self.signature.inputs.len()
             || inputs
                 .iter()
@@ -66,8 +67,21 @@ impl GateDefinition {
                 .collect::<Vec<TernaryType>>()
                 != self.signature.inputs
         {
-            // TODO:make an actual error here
-            panic!()
+            todo!("make an actual error here: wrong input types, expected smth got smth")
+        } else {
+            inputs
+                .iter()
+                .zip(self.signature.inputs.iter())
+                .map(|(ternary_value, ternary_type)| match ternary_type {
+                    Trit => TernaryValue::Trit(TernaryValue::assert_trit(ternary_value.clone())),
+                    ThreeTrit => TernaryValue::ThreeTrit(TernaryValue::assert_three_trit(
+                        ternary_value.clone(),
+                    )),
+                    NineTrit => TernaryValue::NineTrit(TernaryValue::assert_nine_trit(
+                        ternary_value.clone(),
+                    )),
+                })
+                .collect::<Vec<TernaryValue>>()
         }
     }
 }
@@ -98,7 +112,7 @@ impl TruthTableGate {
         if let Some(outputs) = self.truth_table.get(inputs) {
             outputs.clone()
         } else {
-            panic!("Unknown truthtable gate {gate_type_id}!")
+            todo!("Unknown truthtable gate {gate_type_id}! (create an error someday)")
         }
     }
 }
@@ -110,7 +124,7 @@ impl RecursiveGate {
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        panic!("recursive gates are not implemented yet");
+        todo!("recursive gates are not implemented yet");
     }
 }
 
@@ -121,6 +135,6 @@ impl CodeGate {
         gate_type_id: &GateTypeID,
         inputs: &Vec<TernaryValue>,
     ) -> Vec<TernaryValue> {
-        panic!("code gates are not implemented yet");
+        todo!("code gates are not implemented yet");
     }
 }

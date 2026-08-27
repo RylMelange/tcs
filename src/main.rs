@@ -2,13 +2,11 @@ mod simulation;
 use std::collections::HashMap;
 
 use crate::simulation::{
-    gate_definitions::{BuiltinGate, GateDefinition, GateImplementation::Builtin},
-    gates::GateID,
-    simulator::{InPort, Simulator},
-    wire_values::{TernaryType, TernaryValue},
+    gate_definitions::{BuiltinGate, GateDefinition, GateImplementation::Builtin}, gates::GateID, simulator::{InPort, Simulator}, wire_values::{TernaryType, TernaryValue, TritValue},
 };
 
 fn main() {
+
     let mut implementations = HashMap::new();
     let increment_definition = GateDefinition::new(
         "increment",
@@ -39,7 +37,7 @@ fn main() {
                         _ => panic!(),
                     })]
                 } else {
-                    vec![TernaryValue::Trit(simulation::wire_values::TritValue::Zero)]
+                    vec![TernaryValue::Trit(TritValue::new(0))]
                 }
             },
         }),
