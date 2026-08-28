@@ -1,10 +1,7 @@
 #![allow(unused)]
 use crate::simulation::{
-    gate_definitions::GateImplementation::*,
-    wire_values::{
-        TernaryType::{self, NineTrit, ThreeTrit, Trit},
-        TernaryValue::{self, *},
-        TritValue,
+    gate_definitions::GateImplementation::*, wire_values::{
+        TernaryType::{self, NineTrit, ThreeTrit, Trit}, TernaryValue,
     },
 };
 use std::collections::HashMap;
@@ -69,19 +66,7 @@ impl GateDefinition {
         {
             todo!("make an actual error here: wrong input types, expected smth got smth")
         } else {
-            inputs
-                .iter()
-                .zip(self.signature.inputs.iter())
-                .map(|(ternary_value, ternary_type)| match ternary_type {
-                    Trit => TernaryValue::Trit(TernaryValue::assert_trit(ternary_value.clone())),
-                    ThreeTrit => TernaryValue::ThreeTrit(TernaryValue::assert_three_trit(
-                        ternary_value.clone(),
-                    )),
-                    NineTrit => TernaryValue::NineTrit(TernaryValue::assert_nine_trit(
-                        ternary_value.clone(),
-                    )),
-                })
-                .collect::<Vec<TernaryValue>>()
+            todo!("verify signature")
         }
     }
 }

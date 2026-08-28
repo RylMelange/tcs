@@ -2,42 +2,34 @@ mod simulation;
 use std::collections::HashMap;
 
 use crate::simulation::{
-    gate_definitions::{BuiltinGate, GateDefinition, GateImplementation::Builtin}, gates::GateID, simulator::{InPort, Simulator}, wire_values::{TernaryType, TernaryValue, TritValue},
+    gate_definitions::{BuiltinGate, GateDefinition, GateImplementation::Builtin},
+    gates::GateID,
+    simulator::{InPort, Simulator},
+    wire_values::{TernaryType::*, TernaryValue},
 };
 
 fn main() {
-
     let mut implementations = HashMap::new();
     let increment_definition = GateDefinition::new(
         "increment",
-        vec![TernaryType::Trit],
-        vec![TernaryType::Trit],
+        vec![Trit],
+        vec![Trit],
         Builtin(BuiltinGate {
-            compute_function: |a| {
-                a.iter()
-                    .map(|v| match v {
-                        TernaryValue::Trit(val) => TernaryValue::Trit(val.increment()),
-                        _ => panic!(),
-                    })
-                    .collect()
-            },
+            compute_function: |a| vec![a[0] + 1],
         }),
     );
     implementations.insert("increment".to_string(), increment_definition);
 
     let and_definition = GateDefinition::new(
         "and",
-        vec![TernaryType::Trit; 2],
-        vec![TernaryType::Trit],
+        vec![Trit; 2],
+        vec![Trit],
         Builtin(BuiltinGate {
             compute_function: |a| {
                 if a[0] == a[1] {
-                    vec![TernaryValue::Trit(match a[0].clone() {
-                        TernaryValue::Trit(val) => val.increment(),
-                        _ => panic!(),
-                    })]
+                    vec![a[0] + 1]
                 } else {
-                    vec![TernaryValue::Trit(TritValue::new(0))]
+                    vec![TernaryValue::new(Trit, 0)]
                 }
             },
         }),
