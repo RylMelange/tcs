@@ -1,41 +1,44 @@
+mod app_data;
 mod simulation;
 
-use crate::simulation::{
-    gate_definitions::default_definitions, gates::GateID, simulator::{InPort, Simulator}, wire_values::{TernaryType::*, TernaryValue},
+use crate::{
+    app_data::AppData,
+    simulation::{
+        gates::GateID,
+        simulator::InPort,
+        wire_values::{TernaryType::*, TernaryValue},
+    },
 };
 
 fn main() {
-    let implementations = default_definitions();
-
-    let mut sim = Simulator::new();
-    sim.insert_gate(
+    let mut app_data = AppData::new();
+    app_data.simulator.insert_gate(
         GateID(0),
-        implementations.get("source").unwrap(),
+        app_data.implementations.get("source").unwrap(),
         Some(vec![TernaryValue::new(Trit, 1)]),
         vec![vec![InPort::new(GateID(2), 0)]],
     );
-    sim.insert_gate(
+    app_data.simulator.insert_gate(
         GateID(1),
-        implementations.get("source").unwrap(),
+        app_data.implementations.get("source").unwrap(),
         Some(vec![TernaryValue::new(Trit, 1)]),
         vec![vec![InPort::new(GateID(2), 1)]],
     );
-    sim.insert_gate(
+    app_data.simulator.insert_gate(
         GateID(2),
-        implementations.get("and").unwrap(),
+        app_data.implementations.get("and").unwrap(),
         None,
         vec![vec![]],
     );
 
-    sim.insert_pending(GateID(0));
-    sim.insert_pending(GateID(1));
+    app_data.simulator.insert_pending(GateID(0));
+    app_data.simulator.insert_pending(GateID(1));
 
     println!("START:");
-    println!("{:?}", sim.gates);
+    println!("{:?}", app_data.simulator.gates);
 
     println!("STEPPING...");
-    sim.step(implementations);
+    app_data.simulator.step(app_data.implementations);
     println!("END:");
-    // println!("{:?}", sim.gates);
-    println!("{:?}", sim.gates.get(&GateID(2)));
+    println!("{:?}", app_data.simulator.gates.get(&GateID(2)));
 }

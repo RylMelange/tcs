@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt;
 
 use crate::simulation::gate_definitions::*;
