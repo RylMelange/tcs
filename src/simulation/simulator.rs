@@ -1,6 +1,6 @@
 use crate::simulation::{
     gate_definitions::{GateDefinition, GateTypeID},
-    gates::{Gate, GateID},
+    gates::{Gate, GateID, Ports},
 };
 use std::collections::{HashMap, HashSet};
 
@@ -35,16 +35,42 @@ impl Simulator {
         }
     }
 
-    pub fn insert_gate(&mut self, gate_id: GateID, definition: &GateDefinition, targets: Vec<Target>) {
+    pub fn insert_gate(
+        &mut self,
+        gate_id: GateID,
+        definition: &GateDefinition,
+        initial_inputs_option: Option<Ports>,
+        targets: Vec<Target>,
+    ) {
         self.graph.insert(gate_id.clone(), targets);
         let gate_type_id = definition.gate_type_id.clone();
-        let inputs = definition.signature.inputs.iter().map(|t| t.init()).collect();
-        let outputs = definition.signature.outputs.iter().map(|t| t.init()).collect();
+
+        let inputs;
+        if let Some(initial_inputs) = initial_inputs_option {
+            inputs = initial_inputs;
+        } else {
+            inputs = definition
+                .signature
+                .inputs
+                .iter()
+                .map(|t| t.init())
+                .collect();
+        }
+
+        let outputs = definition
+            .signature
+            .outputs
+            .iter()
+            .map(|t| t.init())
+            .collect();
+
         self.gates
             .insert(gate_id, Gate::new(gate_id, gate_type_id, inputs, outputs));
     }
 
-    pub fn insert_pending(&mut self, gate_id: GateID) {self.pending_gates.push(gate_id)}
+    pub fn insert_pending(&mut self, gate_id: GateID) {
+        self.pending_gates.push(gate_id)
+    }
 
     pub fn step(&mut self, implementations: HashMap<GateTypeID, GateDefinition>) {
         if self.sorted_gates.is_none() {

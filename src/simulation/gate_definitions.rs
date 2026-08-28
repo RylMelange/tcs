@@ -1,7 +1,8 @@
-#![allow(unused)]
 use crate::simulation::{
-    gate_definitions::GateImplementation::*, wire_values::{
-        TernaryType::{self, NineTrit, ThreeTrit, Trit}, TernaryValue,
+    gate_definitions::GateImplementation::*,
+    wire_values::{
+        TernaryType::{self, Trit},
+        TernaryValue,
     },
 };
 use std::collections::HashMap;
@@ -9,6 +10,54 @@ use std::collections::HashMap;
 pub type GateTypeID = String;
 
 pub type GateDefinitions = HashMap<GateTypeID, GateDefinition>;
+
+fn insert_implementation(implementations: &mut GateDefinitions, definition: GateDefinition) {
+    implementations.insert(definition.gate_type_id.clone(), definition);
+}
+
+pub fn default_definitions() -> GateDefinitions {
+    let mut implementations = HashMap::new();
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
+            "source",
+            vec![Trit],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| vec![a[0]],
+            }),
+        ),
+    );
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
+            "increment",
+            vec![Trit],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| vec![a[0] + 1],
+            }),
+        ),
+    );
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
+            "and",
+            vec![Trit; 2],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| {
+                    if a[0] == a[1] {
+                        vec![a[0] + 1]
+                    } else {
+                        vec![TernaryValue::new(Trit, 0)]
+                    }
+                },
+            }),
+        ),
+    );
+    implementations
+}
 
 pub enum GateImplementation {
     Builtin(BuiltinGate),
@@ -56,7 +105,7 @@ impl GateDefinition {
         }
     }
 
-    fn verify_signature(&self, inputs: &Vec<TernaryValue>) -> Vec<TernaryValue> {
+    fn verify_signature(&self, inputs: &Vec<TernaryValue>) {
         if inputs.len() != self.signature.inputs.len()
             || inputs
                 .iter()
@@ -65,8 +114,6 @@ impl GateDefinition {
                 != self.signature.inputs
         {
             todo!("make an actual error here: wrong input types, expected smth got smth")
-        } else {
-            todo!("verify signature")
         }
     }
 }
