@@ -4,7 +4,7 @@ use crate::simulation::{
 };
 use std::collections::{HashMap, HashSet};
 
-type Target = Vec<InPort>;
+pub type Target = Vec<InPort>;
 pub struct InPort {
     gate_id: GateID,
     port_index: usize,
@@ -19,7 +19,7 @@ impl InPort {
 }
 
 pub struct Simulator {
-    graph: HashMap<GateID, Vec<Target>>,
+    pub graph: HashMap<GateID, Vec<Target>>,
     pub gates: HashMap<GateID, Gate>,
     pending_gates: Vec<GateID>,
     sorted_gates: Option<Vec<GateID>>,
@@ -72,7 +72,7 @@ impl Simulator {
         self.pending_gates.push(gate_id)
     }
 
-    pub fn step(&mut self, implementations: HashMap<GateTypeID, GateDefinition>) {
+    pub fn step(&mut self, implementations: &HashMap<GateTypeID, GateDefinition>) {
         if self.sorted_gates.is_none() {
             self.generate_sorted_gates();
         }

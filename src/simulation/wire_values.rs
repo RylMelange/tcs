@@ -1,5 +1,6 @@
 use std::{
-    fmt::{Debug, Display}, ops::{Add, Rem},
+    fmt::{Debug, Display},
+    ops::Add,
 };
 
 use crate::simulation::wire_values::TernaryType::*;
@@ -20,11 +21,15 @@ impl TernaryType {
 }
 impl Display for TernaryType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Trit => "Trit",
-            ThreeTrit => "ThreeTrits",
-            NineTrit => "NineTrits",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Trit => "Trit",
+                ThreeTrit => "ThreeTrits",
+                NineTrit => "NineTrits",
+            }
+        )
     }
 }
 

@@ -1,9 +1,10 @@
 mod app_data;
+mod render;
 mod simulation;
+mod main_loop;
 
 use crate::{
-    app_data::AppData,
-    simulation::{
+    app_data::AppData, main_loop::render_loop, simulation::{
         gates::GateID,
         simulator::InPort,
         wire_values::{TernaryType::*, TernaryValue},
@@ -34,11 +35,5 @@ fn main() {
     app_data.simulator.insert_pending(GateID(0));
     app_data.simulator.insert_pending(GateID(1));
 
-    println!("START:");
-    println!("{:?}", app_data.simulator.gates);
-
-    println!("STEPPING...");
-    app_data.simulator.step(app_data.implementations);
-    println!("END:");
-    println!("{:?}", app_data.simulator.gates.get(&GateID(2)));
+    render_loop(&mut app_data);
 }
