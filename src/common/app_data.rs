@@ -3,11 +3,14 @@ use std::collections::HashMap;
 use raylib::ffi::Vector2;
 
 use crate::{
+    common::{
+        gate_definitions::{GateDefinitions, default_definitions},
+        helpers::Target,
+    },
     render::renderer::Renderer,
     simulation::{
-        gate_definitions::{GateDefinitions, default_definitions},
         gates::{Gate, GateID, Ports},
-        simulator::{Simulator, Target},
+        simulator::Simulator,
     },
 };
 

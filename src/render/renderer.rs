@@ -1,7 +1,9 @@
-use crate::simulation::{
-    gate_definitions::{GateDefinitions, Rect},
-    gates::{Gate, GateID},
-    wire_values::TernaryValue,
+use crate::{
+    common::gate_definitions::{GateDefinitions, Rect},
+    simulation::{
+        gates::{Gate, GateID},
+        wire_values::TernaryValue,
+    },
 };
 use raylib::prelude::*;
 use std::collections::HashMap;

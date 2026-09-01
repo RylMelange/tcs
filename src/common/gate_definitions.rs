@@ -1,18 +1,15 @@
-// TODO: move out of /simulation
 use crate::{
+    common::gate_definitions::GateImplementation::*,
     render::renderer::GateRenderData,
-    simulation::{
-        gate_definitions::GateImplementation::*,
-        wire_values::{
-            TernaryType::{self, Trit},
-            TernaryValue,
-        },
+    simulation::wire_values::{
+        TernaryType::{self, Trit},
+        TernaryValue,
     },
 };
 use raylib::ffi::{Rectangle, Vector2};
 use std::collections::HashMap;
 
-// TODO: move to lib or smth
+// TODO: move to objects or smth
 #[derive(Clone, Copy)]
 pub struct Rect {
     pub pos: Vector2,
@@ -96,7 +93,10 @@ pub fn default_definitions() -> GateDefinitions {
                 },
             }),
             GateRenderData {
-                inport_geometries: vec![Rect::new(10.0, 45.0, 10.0, 10.0)],
+                inport_geometries: vec![
+                    Rect::new(10.0, 25.0, 10.0, 10.0),
+                    Rect::new(10.0, 65.0, 10.0, 10.0),
+                ],
                 outport_geometries: vec![Rect::new(80.0, 45.0, 10.0, 10.0)],
                 ..Default::default()
             },

@@ -1,13 +1,12 @@
-mod app_data;
+mod common;
 mod main_loop;
 mod render;
 mod simulation;
 use crate::{
-    app_data::AppData,
+    common::{app_data::AppData, helpers::InPort},
     main_loop::render_loop,
     simulation::{
         gates::GateID,
-        simulator::InPort,
         wire_values::{TernaryType::*, TernaryValue},
     },
 };

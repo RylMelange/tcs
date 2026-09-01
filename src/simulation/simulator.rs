@@ -1,25 +1,8 @@
-use crate::simulation::{
-    gate_definitions::{GateDefinition, GateTypeID},
-    gates::{Gate, GateID},
+use crate::{
+    common::gate_definitions::{GateDefinition, GateTypeID},
+    simulation::gates::{Gate, GateID},
 };
 use std::collections::{HashMap, HashSet};
-
-// TODO: move to a /lib or smth?
-pub type Target = Vec<InPort>;
-
-#[derive(Clone)]
-pub struct InPort {
-    gate_id: GateID,
-    port_index: usize,
-}
-impl InPort {
-    pub fn new(gate_id: GateID, port_index: usize) -> Self {
-        Self {
-            gate_id: gate_id,
-            port_index,
-        }
-    }
-}
 
 pub struct Simulator {
     pending_gates: Vec<GateID>,

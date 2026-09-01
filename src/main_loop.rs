@@ -1,4 +1,4 @@
-use crate::app_data::AppData;
+use crate::common::app_data::AppData;
 
 pub fn render_loop(app_data: &mut AppData) {
     let (mut rl, thread) = raylib::init()

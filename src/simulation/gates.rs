@@ -1,6 +1,7 @@
-use crate::simulation::gate_definitions::*;
-use crate::simulation::simulator::Target;
-use crate::simulation::wire_values::*;
+use crate::{
+    common::{gate_definitions::GateTypeID, helpers::Target},
+    simulation::wire_values::*,
+};
 use raylib::ffi::Vector2;
 use std::fmt;
 
