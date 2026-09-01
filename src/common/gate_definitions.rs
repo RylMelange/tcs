@@ -58,7 +58,7 @@ pub fn default_definitions() -> GateDefinitions {
             }),
             GateRenderData {
                 visible_inports: Some(0),
-                outport_geometries: vec![Rect::new(70.0, 40.0, 20.0, 20.0)],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
                 ..Default::default()
             },
         ),
@@ -94,10 +94,10 @@ pub fn default_definitions() -> GateDefinitions {
             }),
             GateRenderData {
                 inport_geometries: vec![
-                    Rect::new(10.0, 25.0, 10.0, 10.0),
-                    Rect::new(10.0, 65.0, 10.0, 10.0),
+                    Rect::new(20.0, 30.0, 20.0, 20.0),
+                    Rect::new(20.0, 70.0, 20.0, 20.0),
                 ],
-                outport_geometries: vec![Rect::new(80.0, 45.0, 10.0, 10.0)],
+                outport_geometries: vec![Rect::new(85.0, 50.0, 20.0, 20.0)],
                 ..Default::default()
             },
         ),

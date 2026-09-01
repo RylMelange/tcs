@@ -1,5 +1,8 @@
 use crate::{
-    common::gate_definitions::{GateDefinitions, Rect},
+    common::{
+        gate_definitions::{GateDefinition, GateDefinitions, Rect},
+        helpers::InPort,
+    },
     simulation::{
         gates::{Gate, GateID},
         wire_values::TernaryValue,
@@ -40,51 +43,102 @@ impl Renderer {
         &mut self,
         mut d: RaylibDrawHandle,
         gate_definitions: &GateDefinitions,
-        gates: &mut HashMap<GateID, Gate>,
+        gates: &HashMap<GateID, Gate>,
     ) {
         d.clear_background(Color::new(30, 30, 50, 255));
 
         for (gate_id, gate) in gates {
-            if let Some(gate_definition) = gate_definitions.get(&gate.gate_type_id).as_ref() {
+            if let Some(gate_definition) = gate_definitions.get(&gate.gate_type_id) {
                 let render_data = &gate_definition.render_data;
                 let position = &gate.position;
-                let targets = &gate.targets;
                 let inputs = &gate.inputs;
                 let outputs = &gate.outputs;
 
-                self.draw_gate_body(&mut d, position, render_data);
+                draw_gate_body(&mut d, position, render_data);
 
-                self.draw_ports(&mut d, position, inputs, &render_data.inport_geometries);
-                self.draw_ports(&mut d, position, outputs, &render_data.outport_geometries);
+                draw_ports(&mut d, position, inputs, &render_data.inport_geometries);
+                draw_ports(&mut d, position, outputs, &render_data.outport_geometries);
             } else {
                 eprintln!("could not find render_data in gate_definitions for {gate_id}")
             }
         }
 
+        for (_, gate) in gates {
+            if let Some(gate_definition) = gate_definitions.get(&gate.gate_type_id) {
+                let render_data = &gate_definition.render_data;
+                let targets = &gate.targets;
+                let outputs = &gate.outputs;
+                for index in 0..outputs.len() {
+                    let origin_port = &render_data.outport_geometries[index];
+                    let target = &targets[index];
+                    let value = outputs[index].value;
+
+                    draw_wires(
+                        &mut d,
+                        origin_port,
+                        &gate.position,
+                        value,
+                        target,
+                        gates,
+                        gate_definitions,
+                    );
+                }
+            }
+        }
+
         d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
     }
+}
 
-    fn draw_gate_body(
-        &self,
-        d: &mut RaylibDrawHandle,
-        position: &Vector2,
-        render_data: &GateRenderData,
-    ) {
-        // TODO: draw such that "position" of render_data used is relative to camera
-        d.draw_rectangle_v(*position, render_data.size, Color::BLUEVIOLET);
-    }
-    fn draw_ports(
-        &self,
-        d: &mut RaylibDrawHandle,
-        origin: &Vector2,
-        values: &Vec<TernaryValue>,
-        geometries: &Vec<Rect>,
-    ) {
-        for index in 0..geometries.len() {
-            let color = value_to_color(values[index].value);
-            let geometry = geometries[index];
-            d.draw_rectangle_v(geometry.pos + *origin, geometry.size, color);
+// TODO: move below draw_ports
+fn draw_wires(
+    d: &mut RaylibDrawHandle,
+    origin_port_geometry: &Rect,
+    origin_gate_position: &Vector2,
+    value: i16,
+    target: &Vec<InPort>,
+    gates: &HashMap<GateID, Gate>,
+    gate_definitions: &HashMap<String, GateDefinition>,
+) {
+    for InPort {
+        gate_id,
+        port_index,
+    } in target
+    {
+        if let Some(target_gate) = gates.get(gate_id)
+            && let Some(target_gate_definition) = gate_definitions.get(&target_gate.gate_type_id)
+        {
+            let target_port_geometry =
+                &target_gate_definition.render_data.inport_geometries[*port_index];
+            let target_gate_position = target_gate.position;
+            d.draw_line_bezier(
+                *origin_gate_position + origin_port_geometry.pos,
+                target_gate_position + target_port_geometry.pos,
+                6.0,
+                value_to_color(value),
+            );
         }
+    }
+}
+
+fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, render_data: &GateRenderData) {
+    // TODO: draw such that "position" of render_data used is relative to camera
+    d.draw_rectangle_v(*position, render_data.size, Color::BLUEVIOLET);
+}
+fn draw_ports(
+    d: &mut RaylibDrawHandle,
+    origin: &Vector2,
+    values: &Vec<TernaryValue>,
+    geometries: &Vec<Rect>,
+) {
+    for index in 0..geometries.len() {
+        let color = value_to_color(values[index].value);
+        let geometry = geometries[index];
+        d.draw_rectangle_v(
+            geometry.pos + *origin - (geometry.size.scale(0.5)),
+            geometry.size,
+            color,
+        );
     }
 }
 
