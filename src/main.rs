@@ -13,21 +13,21 @@ use crate::{
 
 fn main() {
     let mut app_data = AppData::new();
-    app_data.simulator.insert_gate(
+    app_data.insert_gate(
         GateID(0),
-        app_data.implementations.get("source").unwrap(),
+        "source".to_string(),
         Some(vec![TernaryValue::new(Trit, 1)]),
         vec![vec![InPort::new(GateID(2), 0)]],
     );
-    app_data.simulator.insert_gate(
+    app_data.insert_gate(
         GateID(1),
-        app_data.implementations.get("source").unwrap(),
+        "source".to_string(),
         Some(vec![TernaryValue::new(Trit, 1)]),
         vec![vec![InPort::new(GateID(2), 1)]],
     );
-    app_data.simulator.insert_gate(
+    app_data.insert_gate(
         GateID(2),
-        app_data.implementations.get("and").unwrap(),
+        "and".to_string(),
         None,
         vec![vec![]],
     );

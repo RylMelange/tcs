@@ -1,6 +1,7 @@
 use std::fmt;
 
 use crate::simulation::gate_definitions::*;
+use crate::simulation::simulator::Target;
 use crate::simulation::wire_values::*;
 
 pub type Ports = Vec<TernaryValue>;
@@ -10,6 +11,8 @@ pub struct Gate {
     pub inputs: Ports,
     pub outputs: Ports,
     pub gate_type_id: GateTypeID,
+    // TODO: does this need pub?
+    pub targets: Vec<Target>,
 }
 
 impl fmt::Debug for Gate {
@@ -42,12 +45,19 @@ impl fmt::Display for GateID {
 }
 
 impl Gate {
-    pub fn new(id: GateID, gate_type_id: String, inputs: Ports, outputs: Ports) -> Self {
+    pub fn new(
+        id: GateID,
+        gate_type_id: String,
+        inputs: Ports,
+        outputs: Ports,
+        targets: Vec<Target>,
+    ) -> Self {
         Self {
             id,
             inputs,
             outputs,
             gate_type_id,
+            targets,
         }
     }
 }

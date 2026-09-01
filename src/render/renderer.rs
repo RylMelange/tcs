@@ -4,7 +4,6 @@ use raylib::prelude::*;
 
 use crate::simulation::{
     gates::{Gate, GateID},
-    simulator::Target,
 };
 
 pub struct GateRenderData {
@@ -41,12 +40,7 @@ impl Renderer {
         }
     }
 
-    pub fn render_all(
-        &mut self,
-        mut d: RaylibDrawHandle,
-        graph: &mut HashMap<GateID, Vec<Target>>,
-        gates: &mut HashMap<GateID, Gate>,
-    ) {
+    pub fn render_all(&mut self, mut d: RaylibDrawHandle, gates: &mut HashMap<GateID, Gate>) {
         d.clear_background(Color::new(30, 30, 50, 255));
         d.draw_text(
             "this is so cool!!! raylib is easy",
@@ -60,24 +54,20 @@ impl Renderer {
         let mut temppos = Vector2::new(100.0, 300.0);
 
         for (gate_id, gate) in gates {
-            if let Some(targets) = graph.get(gate_id) {
-                if self.gate_render_data.get(gate_id).is_none() {
-                    self.gate_render_data
-                        .insert(*gate_id, GateRenderData::new(Some(temppos)));
-                }
+            if self.gate_render_data.get(gate_id).is_none() {
+                self.gate_render_data
+                    .insert(*gate_id, GateRenderData::new(Some(temppos)));
+            }
 
-                temppos += Vector2::new(200.0, 0.0);
+            temppos += Vector2::new(200.0, 0.0);
 
-                let render_data = self.gate_render_data.get(gate_id).unwrap();
+            let render_data = self.gate_render_data.get(gate_id).unwrap();
 
-                let inputs = &gate.inputs;
-                let outputs = &gate.outputs;
+            let targets = &gate.targets;
+            let inputs = &gate.inputs;
+            let outputs = &gate.outputs;
 
-                d.draw_rectangle_v(render_data.pos, render_data.size, Color::BLUEVIOLET);
-            } else {
-                eprintln!("{gate_id} exists in gates, but not graph!");
-                panic!()
-            };
+            d.draw_rectangle_v(render_data.pos, render_data.size, Color::BLUEVIOLET);
         }
     }
 }
