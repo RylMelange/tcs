@@ -1,11 +1,44 @@
-use crate::simulation::{
-    gate_definitions::GateImplementation::*,
-    wire_values::{
-        TernaryType::{self, Trit},
-        TernaryValue,
+// TODO: move out of /simulation
+use crate::{
+    render::renderer::GateRenderData,
+    simulation::{
+        gate_definitions::GateImplementation::*,
+        wire_values::{
+            TernaryType::{self, Trit},
+            TernaryValue,
+        },
     },
 };
+use raylib::ffi::{Rectangle, Vector2};
 use std::collections::HashMap;
+
+// TODO: move to lib or smth
+#[derive(Clone, Copy)]
+pub struct Rect {
+    pub pos: Vector2,
+    pub size: Vector2,
+}
+impl Rect {
+    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
+        Self {
+            pos: Vector2 { x, y },
+            size: Vector2 {
+                x: width,
+                y: height,
+            },
+        }
+    }
+}
+impl Into<Rectangle> for Rect {
+    fn into(self) -> Rectangle {
+        Rectangle {
+            x: self.pos.x,
+            y: self.pos.y,
+            width: self.size.y,
+            height: self.size.y,
+        }
+    }
+}
 
 pub type GateTypeID = String;
 
@@ -26,6 +59,11 @@ pub fn default_definitions() -> GateDefinitions {
             Builtin(BuiltinGate {
                 compute_function: |a| vec![a[0]],
             }),
+            GateRenderData {
+                visible_inports: Some(0),
+                outport_geometries: vec![Rect::new(70.0, 40.0, 20.0, 20.0)],
+                ..Default::default()
+            },
         ),
     );
     insert_implementation(
@@ -37,6 +75,9 @@ pub fn default_definitions() -> GateDefinitions {
             Builtin(BuiltinGate {
                 compute_function: |a| vec![a[0] + 1],
             }),
+            GateRenderData {
+                ..Default::default()
+            },
         ),
     );
     insert_implementation(
@@ -54,6 +95,11 @@ pub fn default_definitions() -> GateDefinitions {
                     }
                 },
             }),
+            GateRenderData {
+                inport_geometries: vec![Rect::new(10.0, 45.0, 10.0, 10.0)],
+                outport_geometries: vec![Rect::new(80.0, 45.0, 10.0, 10.0)],
+                ..Default::default()
+            },
         ),
     );
     implementations
@@ -75,6 +121,7 @@ pub struct GateDefinition {
     pub gate_type_id: GateTypeID,
     pub signature: GateSignature,
     pub implementation: GateImplementation,
+    pub render_data: GateRenderData,
 }
 
 impl GateDefinition {
@@ -83,6 +130,7 @@ impl GateDefinition {
         input_signature: Vec<TernaryType>,
         output_signature: Vec<TernaryType>,
         implementation: GateImplementation,
+        render_data: GateRenderData,
     ) -> Self {
         Self {
             gate_type_id: gate_type_id.to_string(),
@@ -91,6 +139,7 @@ impl GateDefinition {
                 outputs: output_signature,
             },
             implementation,
+            render_data,
         }
     }
 

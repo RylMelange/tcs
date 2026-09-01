@@ -9,9 +9,9 @@ pub fn render_loop(app_data: &mut AppData) {
     while !rl.window_should_close() {
         app_data
             .simulator
-            .step(&mut app_data.gates, &app_data.implementations);
+            .step(&mut app_data.gates, &app_data.gate_definitions);
         app_data
             .renderer
-            .render_all(rl.begin_drawing(&thread), &mut app_data.gates);
+            .render_all(rl.begin_drawing(&thread), &app_data.gate_definitions, &mut app_data.gates);
     }
 }

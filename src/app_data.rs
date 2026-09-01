@@ -1,16 +1,20 @@
 use std::collections::HashMap;
 
+use raylib::ffi::Vector2;
+
 use crate::{
-    render::renderer::Renderer, simulation::{
-        gate_definitions::{GateDefinition, GateDefinitions, default_definitions}, gates::{Gate, GateID, Ports}, simulator::{Simulator, Target},
+    render::renderer::Renderer,
+    simulation::{
+        gate_definitions::{GateDefinitions, default_definitions},
+        gates::{Gate, GateID, Ports},
+        simulator::{Simulator, Target},
     },
 };
 
 pub struct AppData {
     pub renderer: Renderer,
     pub simulator: Simulator,
-    pub implementations: GateDefinitions,
-
+    pub gate_definitions: GateDefinitions,
     pub gates: HashMap<GateID, Gate>,
 }
 
@@ -19,8 +23,7 @@ impl AppData {
         Self {
             renderer: Renderer::new(),
             simulator: Simulator::new(),
-            implementations: default_definitions(),
-
+            gate_definitions: default_definitions(),
             gates: HashMap::new(),
         }
     }
@@ -31,9 +34,10 @@ impl AppData {
         definition_name: String,
         initial_inputs_option: Option<Ports>,
         targets: Vec<Target>,
+        position: Vector2,
     ) {
         // TODO: don't unwrap
-        let definition = self.implementations.get(&definition_name).unwrap();
+        let definition = self.gate_definitions.get(&definition_name).unwrap();
         let gate_type_id = definition.gate_type_id.clone();
 
         let inputs;
@@ -55,7 +59,9 @@ impl AppData {
             .map(|t| t.init())
             .collect();
 
-        self.gates
-            .insert(gate_id, Gate::new(gate_id, gate_type_id, inputs, outputs,targets));
+        self.gates.insert(
+            gate_id,
+            Gate::new(gate_id, gate_type_id, inputs, outputs, targets, position),
+        );
     }
 }

@@ -1,73 +1,96 @@
-use std::collections::HashMap;
-
-use raylib::prelude::*;
-
 use crate::simulation::{
+    gate_definitions::{GateDefinitions, Rect},
     gates::{Gate, GateID},
+    wire_values::TernaryValue,
 };
+use raylib::prelude::*;
+use std::collections::HashMap;
+const PORT_SIZE: Vector2 = Vector2 { x: 10.0, y: 10.0 };
+const PADDING: f32 = 10.0;
 
+#[derive(Clone)]
 pub struct GateRenderData {
-    pub pos: Vector2,
     pub size: Vector2,
     pub color: Color,
     pub visible_inports: Option<i16>,
+    pub inport_geometries: Vec<Rect>,
+    pub outport_geometries: Vec<Rect>,
 }
-
-impl GateRenderData {
-    pub fn new(position: Option<Vector2>) -> Self {
-        let pos;
-        if position.is_some() {
-            pos = position.unwrap()
-        } else {
-            pos = Vector2 { x: 0.0, y: 0.0 }
-        }
+impl Default for GateRenderData {
+    fn default() -> Self {
         Self {
-            pos,
-            size: Vector2::new(100.0, 100.0),
-            color: Color::new(100, 100, 200, 255),
+            size: Vector2 { x: 100.0, y: 100.0 },
+            color: Color::MEDIUMTURQUOISE,
             visible_inports: None,
+            inport_geometries: vec![],
+            outport_geometries: vec![],
         }
     }
 }
 
-pub struct Renderer {
-    gate_render_data: HashMap<GateID, GateRenderData>,
-}
+pub struct Renderer {}
 impl Renderer {
     pub fn new() -> Self {
-        Self {
-            gate_render_data: HashMap::new(),
-        }
+        Self {}
     }
 
-    pub fn render_all(&mut self, mut d: RaylibDrawHandle, gates: &mut HashMap<GateID, Gate>) {
+    pub fn render_all(
+        &mut self,
+        mut d: RaylibDrawHandle,
+        gate_definitions: &GateDefinitions,
+        gates: &mut HashMap<GateID, Gate>,
+    ) {
         d.clear_background(Color::new(30, 30, 50, 255));
-        d.draw_text(
-            "this is so cool!!! raylib is easy",
-            12,
-            12,
-            35,
-            Color::RAYWHITE,
-        );
-
-        // TODO: remove temppos
-        let mut temppos = Vector2::new(100.0, 300.0);
 
         for (gate_id, gate) in gates {
-            if self.gate_render_data.get(gate_id).is_none() {
-                self.gate_render_data
-                    .insert(*gate_id, GateRenderData::new(Some(temppos)));
+            if let Some(gate_definition) = gate_definitions.get(&gate.gate_type_id).as_ref() {
+                let render_data = &gate_definition.render_data;
+                let position = &gate.position;
+                let targets = &gate.targets;
+                let inputs = &gate.inputs;
+                let outputs = &gate.outputs;
+
+                self.draw_gate_body(&mut d, position, render_data);
+
+                self.draw_ports(&mut d, position, inputs, &render_data.inport_geometries);
+                self.draw_ports(&mut d, position, outputs, &render_data.outport_geometries);
+            } else {
+                eprintln!("could not find render_data in gate_definitions for {gate_id}")
             }
-
-            temppos += Vector2::new(200.0, 0.0);
-
-            let render_data = self.gate_render_data.get(gate_id).unwrap();
-
-            let targets = &gate.targets;
-            let inputs = &gate.inputs;
-            let outputs = &gate.outputs;
-
-            d.draw_rectangle_v(render_data.pos, render_data.size, Color::BLUEVIOLET);
         }
+
+        d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
+    }
+
+    fn draw_gate_body(
+        &self,
+        d: &mut RaylibDrawHandle,
+        position: &Vector2,
+        render_data: &GateRenderData,
+    ) {
+        // TODO: draw such that "position" of render_data used is relative to camera
+        d.draw_rectangle_v(*position, render_data.size, Color::BLUEVIOLET);
+    }
+    fn draw_ports(
+        &self,
+        d: &mut RaylibDrawHandle,
+        origin: &Vector2,
+        values: &Vec<TernaryValue>,
+        geometries: &Vec<Rect>,
+    ) {
+        for index in 0..geometries.len() {
+            let color = value_to_color(values[index].value);
+            let geometry = geometries[index];
+            d.draw_rectangle_v(geometry.pos + *origin, geometry.size, color);
+        }
+    }
+}
+
+fn value_to_color(value: i16) -> Color {
+    match value {
+        -1 => Color::RED,
+        0 => Color::DARKSLATEGRAY,
+        1 => Color::BLUE,
+        _ => Color::GREENYELLOW,
     }
 }

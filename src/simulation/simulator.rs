@@ -6,6 +6,8 @@ use std::collections::{HashMap, HashSet};
 
 // TODO: move to a /lib or smth?
 pub type Target = Vec<InPort>;
+
+#[derive(Clone)]
 pub struct InPort {
     gate_id: GateID,
     port_index: usize,
@@ -20,7 +22,6 @@ impl InPort {
 }
 
 pub struct Simulator {
-    pub graph: HashMap<GateID, Vec<Target>>,
     pending_gates: Vec<GateID>,
     sorted_gates: Option<Vec<GateID>>,
 }
@@ -28,7 +29,6 @@ pub struct Simulator {
 impl Simulator {
     pub fn new() -> Self {
         Self {
-            graph: HashMap::new(),
             pending_gates: vec![],
             sorted_gates: None,
         }
@@ -56,22 +56,20 @@ impl Simulator {
                     .expect("gate definitions missing!");
                 outputs = definition.compute(&gate.inputs);
                 gate.outputs = outputs.clone();
-            } else {
-                println!("{gate_id} was listed in sorted_gates, but not gates!");
-                continue;
-            }
 
-            if let Some(targets) = self.graph.get(&gate_id) {
+                let targets = gate.targets.clone();
+
                 for index in 0..outputs.len() {
-                    for target in &targets[index] {
+                    let target = targets.get(index).unwrap();
+                    for port in target {
                         gates
-                            .get_mut(&target.gate_id)
+                            .get_mut(&port.gate_id)
                             .expect("couldn't find target gate")
-                            .inputs[target.port_index] = outputs[index].clone();
+                            .inputs[port.port_index] = outputs[index].clone();
                     }
                 }
             } else {
-                println!("{gate_id} didn't seem to have target gates!");
+                println!("{gate_id} was listed in sorted_gates, but not gates!");
                 continue;
             }
         }
