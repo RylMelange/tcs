@@ -1,13 +1,13 @@
 use crate::simulation::gates::GateID;
 
-pub type Target = Vec<InPort>;
+pub type Target = Vec<Port>;
 
-#[derive(Clone)]
-pub struct InPort {
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
+pub struct Port {
     pub gate_id: GateID,
     pub port_index: usize,
 }
-impl InPort {
+impl Port {
     pub fn new(gate_id: GateID, port_index: usize) -> Self {
         Self {
             gate_id: gate_id,

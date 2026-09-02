@@ -3,7 +3,7 @@ mod main_loop;
 mod render;
 mod simulation;
 use crate::{
-    common::{app_data::AppData, helpers::InPort},
+    common::{app_data::AppData, helpers::Port},
     main_loop::render_loop,
     simulation::{
         gates::GateID,
@@ -18,22 +18,40 @@ fn main() {
         GateID(0),
         "source".to_string(),
         Some(vec![TernaryValue::new(Trit, 1)]),
-        vec![vec![InPort::new(GateID(2), 0)]],
         Vector2::new(100.0, 100.0),
     );
     app_data.insert_gate(
         GateID(1),
         "source".to_string(),
         Some(vec![TernaryValue::new(Trit, 1)]),
-        vec![vec![InPort::new(GateID(2), 1)]],
         Vector2::new(100.0, 300.0),
     );
     app_data.insert_gate(
         GateID(2),
         "and".to_string(),
         None,
-        vec![vec![]],
         Vector2::new(300.0, 200.0),
+    );
+
+    app_data.connect_gates(
+        Port {
+            gate_id: GateID(0),
+            port_index: 0,
+        },
+        Port {
+            gate_id: GateID(2),
+            port_index: 0,
+        },
+    );
+    app_data.connect_gates(
+        Port {
+            gate_id: GateID(1),
+            port_index: 0,
+        },
+        Port {
+            gate_id: GateID(2),
+            port_index: 1,
+        },
     );
 
     app_data.simulator.insert_pending(GateID(0));

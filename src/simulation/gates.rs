@@ -14,6 +14,7 @@ pub struct Gate {
     pub gate_type_id: GateTypeID,
     // TODO: does this need pub?
     pub targets: Vec<Target>,
+    // pub sources: Vec<Target>,
     pub position: Vector2,
 }
 
@@ -52,15 +53,17 @@ impl Gate {
         gate_type_id: String,
         inputs: Ports,
         outputs: Ports,
-        targets: Vec<Target>,
         position: Vector2,
     ) -> Self {
+        let targets = vec![vec![]; outputs.len()];
+        // let sources = vec![vec![]; inputs.len()];
         Self {
             id,
             inputs,
             outputs,
             gate_type_id,
             targets,
+            // sources,
             position,
         }
     }

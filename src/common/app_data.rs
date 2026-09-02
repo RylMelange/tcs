@@ -1,11 +1,7 @@
-use std::collections::HashMap;
-
-use raylib::ffi::Vector2;
-
 use crate::{
     common::{
         gate_definitions::{GateDefinitions, default_definitions},
-        helpers::Target,
+        helpers::Port,
     },
     render::renderer::Renderer,
     simulation::{
@@ -13,6 +9,8 @@ use crate::{
         simulator::Simulator,
     },
 };
+use raylib::ffi::Vector2;
+use std::collections::HashMap;
 
 pub struct AppData {
     pub renderer: Renderer,
@@ -31,12 +29,27 @@ impl AppData {
         }
     }
 
+    pub fn connect_gates(&mut self, outport: Port, inport: Port) {
+        if let Some(outgate) = self.gates.get_mut(&outport.gate_id) {
+            outgate.targets[outport.port_index].push(inport.clone());
+        } else {
+            // TODO: return real error
+            eprintln!("couldn't find in-gate to connect")
+        }
+        // if let Some(outgate) = self.gates.get_mut(&outport.gate_id) {
+        //     outgate.sources[inport.port_index].push(inport.clone());
+        // } else {
+        //     // TODO: return real error
+        //     eprintln!("couldn't find out-gate to connect")
+        // }
+        self.renderer.wires.insert(inport, outport);
+    }
+
     pub fn insert_gate(
         &mut self,
         gate_id: GateID,
         definition_name: String,
         initial_inputs_option: Option<Ports>,
-        targets: Vec<Target>,
         position: Vector2,
     ) {
         // TODO: don't unwrap
@@ -64,7 +77,7 @@ impl AppData {
 
         self.gates.insert(
             gate_id,
-            Gate::new(gate_id, gate_type_id, inputs, outputs, targets, position),
+            Gate::new(gate_id, gate_type_id, inputs, outputs, position),
         );
     }
 }

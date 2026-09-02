@@ -1,7 +1,7 @@
 use crate::{
     common::{
         gate_definitions::{GateDefinition, GateDefinitions, Rect},
-        helpers::InPort,
+        helpers::Port,
     },
     simulation::{
         gates::{Gate, GateID},
@@ -33,10 +33,14 @@ impl Default for GateRenderData {
     }
 }
 
-pub struct Renderer {}
+pub struct Renderer {
+    pub wires: HashMap<Port, Port>,
+}
 impl Renderer {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            wires: HashMap::new(),
+        }
     }
 
     pub fn render_all(
@@ -63,62 +67,48 @@ impl Renderer {
             }
         }
 
-        for (_, gate) in gates {
-            if let Some(gate_definition) = gate_definitions.get(&gate.gate_type_id) {
-                let render_data = &gate_definition.render_data;
-                let targets = &gate.targets;
-                let outputs = &gate.outputs;
-                for index in 0..outputs.len() {
-                    let origin_port = &render_data.outport_geometries[index];
-                    let target = &targets[index];
-                    let value = outputs[index].value;
-
-                    draw_wires(
-                        &mut d,
-                        origin_port,
-                        &gate.position,
-                        value,
-                        target,
-                        gates,
-                        gate_definitions,
-                    );
-                }
-            }
+        for (inport, outport) in &self.wires {
+            draw_wire(&mut d, inport, outport, gates, gate_definitions);
         }
 
         d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
     }
 }
 
-// TODO: move below draw_ports
-fn draw_wires(
+// TODO: this code is ridiculous.... fix it someday?
+fn draw_wire(
     d: &mut RaylibDrawHandle,
-    origin_port_geometry: &Rect,
-    origin_gate_position: &Vector2,
-    value: i16,
-    target: &Vec<InPort>,
+    inport: &Port,
+    outport: &Port,
     gates: &HashMap<GateID, Gate>,
-    gate_definitions: &HashMap<String, GateDefinition>,
+    gate_definitions: &GateDefinitions,
 ) {
-    for InPort {
-        gate_id,
-        port_index,
-    } in target
-    {
-        if let Some(target_gate) = gates.get(gate_id)
-            && let Some(target_gate_definition) = gate_definitions.get(&target_gate.gate_type_id)
-        {
-            let target_port_geometry =
-                &target_gate_definition.render_data.inport_geometries[*port_index];
-            let target_gate_position = target_gate.position;
-            d.draw_line_bezier(
-                *origin_gate_position + origin_port_geometry.pos,
-                target_gate_position + target_port_geometry.pos,
-                6.0,
-                value_to_color(value),
-            );
-        }
-    }
+    let origin_gate = gates
+        .get(&outport.gate_id)
+        .expect("origin gate doesn't exist");
+    let outport_geometries = &gate_definitions
+        .get(&origin_gate.gate_type_id)
+        .expect("render data of origin gate doesn't exist")
+        .render_data
+        .outport_geometries;
+    let origin_port_geometry = outport_geometries[outport.port_index];
+
+    let target_gate = gates
+        .get(&inport.gate_id)
+        .expect("target gate doesn't exist");
+    let inport_geometries = &gate_definitions
+        .get(&target_gate.gate_type_id)
+        .expect("render data of target gate doesn't exist")
+        .render_data
+        .inport_geometries;
+    let target_port_geometry = inport_geometries[inport.port_index];
+
+    d.draw_line_bezier(
+        origin_gate.position + origin_port_geometry.pos,
+        target_gate.position + target_port_geometry.pos,
+        6.0,
+        value_to_color(origin_gate.outputs[outport.port_index].value),
+    );
 }
 
 fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, render_data: &GateRenderData) {
