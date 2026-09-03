@@ -117,6 +117,6 @@ impl TernaryValue {
 
 impl TernaryValue {
     pub fn ternary_type(&self) -> TernaryType {
-        return self.ternary_type;
+        self.ternary_type
     }
 }

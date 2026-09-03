@@ -56,7 +56,7 @@ impl AppData {
             }
             Port::MOUSEPORT => {}
         }
-        self.renderer.wires.remove(&inport);
+        self.renderer.wires.remove(inport);
     }
 
     pub fn insert_gate(

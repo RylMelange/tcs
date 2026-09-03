@@ -36,7 +36,7 @@ impl Simulator {
         for gate_id in self.sorted_gates.as_ref().unwrap() {
             let outputs;
 
-            if let Some(gate) = gates.get_mut(&gate_id) {
+            if let Some(gate) = gates.get_mut(gate_id) {
                 let definition = implementations
                     .get(&gate.gate_type_id)
                     .expect("gate definitions missing!");
@@ -45,14 +45,14 @@ impl Simulator {
 
                 let targets = gate.targets.clone();
 
-                for index in 0..outputs.len() {
+                for (index, output) in outputs.iter().enumerate() {
                     let target = targets.get(index).unwrap();
                     for port in target {
                         if let Port::GATEPORT(gate_port) = port {
                             gates
                                 .get_mut(&gate_port.gate_id)
                                 .expect("couldn't find target gate")
-                                .inputs[gate_port.port_index] = outputs[index].clone();
+                                .inputs[gate_port.port_index] = *output;
                         }
                     }
                 }
@@ -92,11 +92,8 @@ fn dfs_visit(
 
     for target in &gates.get(&node).unwrap().targets {
         for port in target {
-            match port {
-                Port::GATEPORT(gate_port) => {
-                    dfs_visit(gate_port.gate_id, sorted_gates, temporary_gates, &gates);
-                }
-                _ => {}
+            if let Port::GATEPORT(gate_port) = port {
+                dfs_visit(gate_port.gate_id, sorted_gates, temporary_gates, gates);
             }
         }
     }

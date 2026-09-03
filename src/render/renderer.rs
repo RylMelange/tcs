@@ -59,7 +59,7 @@ impl Renderer {
         // TODO: is there a better way to do this?
         let mouse_position = rl.get_mouse_position();
 
-        let mut d = &mut rl.begin_drawing(&thread);
+        let mut d = &mut rl.begin_drawing(thread);
         d.clear_background(Color::new(30, 30, 50, 255));
 
         for (gate_id, gate) in gates {
@@ -69,18 +69,18 @@ impl Renderer {
                 let inputs = &gate.inputs;
                 let outputs = &gate.outputs;
 
-                draw_gate_body(&mut d, position, &gate.size);
+                draw_gate_body(d, position, &gate.size);
 
                 // TODO: change render_data to be within gate?
                 draw_ports(
-                    &mut d,
+                    d,
                     position,
                     inputs,
                     &render_data.inport_geometries,
                     &render_data.visible_inports,
                 );
                 draw_ports(
-                    &mut d,
+                    d,
                     position,
                     outputs,
                     &render_data.outport_geometries,
@@ -106,8 +106,8 @@ fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, size: &Vector2) 
 fn draw_ports(
     d: &mut RaylibDrawHandle,
     origin: &Vector2,
-    values: &Vec<TernaryValue>,
-    geometries: &Vec<Rect>,
+    values: &[TernaryValue],
+    geometries: &[Rect],
     visible_ports: &Option<i16>,
 ) {
     let ports_number = match visible_ports {

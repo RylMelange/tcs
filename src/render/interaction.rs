@@ -21,10 +21,10 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
     if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
         let gates = &mut app_data.gates;
 
-        if let Some(hovered_gate_id) = find_hovered_gate(rl, gates) {
-            if !try_drag_hovered_port(app_data, rl, hovered_gate_id) {
-                app_data.renderer.dragged_component = Draggable::GATE(hovered_gate_id);
-            }
+        if let Some(hovered_gate_id) = find_hovered_gate(rl, gates)
+            && !try_drag_hovered_port(app_data, rl, hovered_gate_id)
+        {
+            app_data.renderer.dragged_component = Draggable::GATE(hovered_gate_id);
         }
     } else if rl.is_mouse_button_released(MouseButton::MOUSE_BUTTON_LEFT) {
         match app_data.renderer.dragged_component {
@@ -134,10 +134,9 @@ fn try_drag_hovered_port(
                     return true;
                 }
             }
-            GatePortType::OUTPORT => {}
-            // GatePortType::INTERNAL => {
-            //     gate.inputs[hovered_port.port_index].increment();
-            // }
+            GatePortType::OUTPORT => {} // GatePortType::INTERNAL => {
+                                        //     gate.inputs[hovered_port.port_index].increment();
+                                        // }
         }
     }
     false

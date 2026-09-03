@@ -15,7 +15,7 @@ pub fn render_loop(app_data: &mut AppData) {
             &mut rl,
             &thread,
             &app_data.gate_definitions,
-            &mut app_data.gates,
+            &app_data.gates,
         );
     }
 }

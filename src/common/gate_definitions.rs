@@ -26,13 +26,13 @@ impl Rect {
         }
     }
 }
-impl Into<Rectangle> for Rect {
-    fn into(self) -> Rectangle {
+impl From<Rect> for Rectangle {
+    fn from(rec: Rect) -> Self {
         Rectangle {
-            x: self.pos.x,
-            y: self.pos.y,
-            width: self.size.y,
-            height: self.size.y,
+            x: rec.pos.x,
+            y: rec.pos.y,
+            width: rec.size.y,
+            height: rec.size.y,
         }
     }
 }
