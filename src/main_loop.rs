@@ -1,4 +1,4 @@
-use crate::common::app_data::AppData;
+use crate::{common::app_data::AppData, render::interaction::handle_inputs};
 
 pub fn render_loop(app_data: &mut AppData) {
     let (mut rl, thread) = raylib::init()
@@ -10,8 +10,11 @@ pub fn render_loop(app_data: &mut AppData) {
         app_data
             .simulator
             .step(&mut app_data.gates, &app_data.gate_definitions);
-        app_data
-            .renderer
-            .render_all(rl.begin_drawing(&thread), &app_data.gate_definitions, &mut app_data.gates);
+        handle_inputs(&mut rl, app_data);
+        app_data.renderer.render_all(
+            rl.begin_drawing(&thread),
+            &app_data.gate_definitions,
+            &mut app_data.gates,
+        );
     }
 }

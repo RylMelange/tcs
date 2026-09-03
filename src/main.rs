@@ -3,7 +3,14 @@ mod main_loop;
 mod render;
 mod simulation;
 use crate::{
-    common::{app_data::AppData, helpers::Port},
+    common::{
+        app_data::AppData,
+        helpers::{
+            GatePort,
+            GatePortType::{INPORT, OUTPORT},
+            Port,
+        },
+    },
     main_loop::render_loop,
     simulation::{
         gates::GateID,
@@ -34,24 +41,28 @@ fn main() {
     );
 
     app_data.connect_gates(
-        Port {
+        &Port::GATEPORT(GatePort {
             gate_id: GateID(0),
             port_index: 0,
-        },
-        Port {
+            port_type: OUTPORT,
+        }),
+        &Port::GATEPORT(GatePort {
             gate_id: GateID(2),
             port_index: 0,
-        },
+            port_type: INPORT,
+        }),
     );
     app_data.connect_gates(
-        Port {
+        &Port::GATEPORT(GatePort {
             gate_id: GateID(1),
             port_index: 0,
-        },
-        Port {
+            port_type: OUTPORT,
+        }),
+        &Port::GATEPORT(GatePort {
             gate_id: GateID(2),
             port_index: 1,
-        },
+            port_type: INPORT,
+        }),
     );
 
     app_data.simulator.insert_pending(GateID(0));

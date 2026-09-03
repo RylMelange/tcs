@@ -1,7 +1,7 @@
 use crate::{
     common::{
-        gate_definitions::{GateDefinition, GateDefinitions, Rect},
-        helpers::Port,
+        gate_definitions::{GateDefinitions, Rect},
+        helpers::{GatePortType, Port},
     },
     simulation::{
         gates::{Gate, GateID},
@@ -33,13 +33,23 @@ impl Default for GateRenderData {
     }
 }
 
+pub enum Draggable {
+    GATE(GateID),
+    PORT,
+    NONE,
+}
+
 pub struct Renderer {
     pub wires: HashMap<Port, Port>,
+    pub mouse_start: Vector2,
+    pub dragged_component: Draggable,
 }
 impl Renderer {
     pub fn new() -> Self {
         Self {
             wires: HashMap::new(),
+            mouse_start: Vector2::zero(),
+            dragged_component: Draggable::NONE,
         }
     }
 
@@ -58,8 +68,9 @@ impl Renderer {
                 let inputs = &gate.inputs;
                 let outputs = &gate.outputs;
 
-                draw_gate_body(&mut d, position, render_data);
+                draw_gate_body(&mut d, position, &gate.size);
 
+                // TODO: change render_data to be within gate?
                 draw_ports(&mut d, position, inputs, &render_data.inport_geometries);
                 draw_ports(&mut d, position, outputs, &render_data.outport_geometries);
             } else {
@@ -68,52 +79,16 @@ impl Renderer {
         }
 
         for (inport, outport) in &self.wires {
-            draw_wire(&mut d, inport, outport, gates, gate_definitions);
+            draw_wire(&mut d, outport, inport, gates, gate_definitions);
         }
 
         d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
     }
 }
 
-// TODO: this code is ridiculous.... fix it someday?
-fn draw_wire(
-    d: &mut RaylibDrawHandle,
-    inport: &Port,
-    outport: &Port,
-    gates: &HashMap<GateID, Gate>,
-    gate_definitions: &GateDefinitions,
-) {
-    let origin_gate = gates
-        .get(&outport.gate_id)
-        .expect("origin gate doesn't exist");
-    let outport_geometries = &gate_definitions
-        .get(&origin_gate.gate_type_id)
-        .expect("render data of origin gate doesn't exist")
-        .render_data
-        .outport_geometries;
-    let origin_port_geometry = outport_geometries[outport.port_index];
-
-    let target_gate = gates
-        .get(&inport.gate_id)
-        .expect("target gate doesn't exist");
-    let inport_geometries = &gate_definitions
-        .get(&target_gate.gate_type_id)
-        .expect("render data of target gate doesn't exist")
-        .render_data
-        .inport_geometries;
-    let target_port_geometry = inport_geometries[inport.port_index];
-
-    d.draw_line_bezier(
-        origin_gate.position + origin_port_geometry.pos,
-        target_gate.position + target_port_geometry.pos,
-        6.0,
-        value_to_color(origin_gate.outputs[outport.port_index].value),
-    );
-}
-
-fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, render_data: &GateRenderData) {
+fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, size: &Vector2) {
     // TODO: draw such that "position" of render_data used is relative to camera
-    d.draw_rectangle_v(*position, render_data.size, Color::BLUEVIOLET);
+    d.draw_rectangle_v(*position, *size, Color::BLUEVIOLET);
 }
 fn draw_ports(
     d: &mut RaylibDrawHandle,
@@ -138,5 +113,60 @@ fn value_to_color(value: i16) -> Color {
         0 => Color::DARKSLATEGRAY,
         1 => Color::BLUE,
         _ => Color::GREENYELLOW,
+    }
+}
+
+fn draw_wire(
+    d: &mut RaylibDrawHandle,
+    outport: &Port,
+    inport: &Port,
+    gates: &HashMap<GateID, Gate>,
+    gate_definitions: &GateDefinitions,
+) {
+    let (origin_position, value) = get_port_position(outport, gates, gate_definitions);
+    let (target_position, _) = get_port_position(inport, gates, gate_definitions);
+
+    // d.draw_line_bezier(origin_position, target_position, 6.0, value_to_color(value));
+    d.draw_spline_bezier_cubic(
+        &[
+            origin_position,
+            (origin_position + Vector2::new(100.0, 0.0)),
+            (target_position + Vector2::new(-100.0, 0.0)),
+            target_position,
+        ],
+        6.0,
+        value_to_color(value),
+    );
+}
+
+fn get_port_position(
+    port: &Port,
+    gates: &HashMap<GateID, Gate>,
+    gate_definitions: &GateDefinitions,
+) -> (Vector2, i16) {
+    match port {
+        Port::GATEPORT(gate_port) => {
+            let gate = gates
+                .get(&gate_port.gate_id)
+                .expect("origin gate doesn't exist");
+            let render_data = &gate_definitions
+                .get(&gate.gate_type_id)
+                .expect("render data of origin gate doesn't exist")
+                .render_data;
+            let (geometries, values) = match gate_port.port_type {
+                GatePortType::INPORT => (&render_data.inport_geometries, &gate.inputs),
+                GatePortType::OUTPORT => (&render_data.outport_geometries, &gate.outputs),
+                GatePortType::INTERNAL => {
+                    todo!() /*render_data.internal_geometries*/
+                }
+            };
+            (
+                gate.position + geometries[gate_port.port_index].pos,
+                values[gate_port.port_index].value,
+            )
+        }
+        Port::MOUSEPORT => {
+            todo!()
+        }
     }
 }

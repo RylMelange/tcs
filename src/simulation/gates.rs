@@ -16,6 +16,7 @@ pub struct Gate {
     pub targets: Vec<Target>,
     // pub sources: Vec<Target>,
     pub position: Vector2,
+    pub size: Vector2,
 }
 
 impl fmt::Debug for Gate {
@@ -54,6 +55,7 @@ impl Gate {
         inputs: Ports,
         outputs: Ports,
         position: Vector2,
+        size: Vector2,
     ) -> Self {
         let targets = vec![vec![]; outputs.len()];
         // let sources = vec![vec![]; inputs.len()];
@@ -65,6 +67,7 @@ impl Gate {
             targets,
             // sources,
             position,
+            size,
         }
     }
 }

@@ -63,6 +63,11 @@ impl TernaryValue {
         output
     }
 
+    pub fn increment(&mut self) {
+        self.value += 1;
+        self.wrap_value();
+    }
+
     fn verify_type(&self) {
         match self.ternary_type {
             Trit => {

@@ -1,5 +1,8 @@
 use crate::{
-    common::gate_definitions::{GateDefinition, GateTypeID},
+    common::{
+        gate_definitions::{GateDefinition, GateTypeID},
+        helpers::Port,
+    },
     simulation::gates::{Gate, GateID},
 };
 use std::collections::{HashMap, HashSet};
@@ -45,10 +48,12 @@ impl Simulator {
                 for index in 0..outputs.len() {
                     let target = targets.get(index).unwrap();
                     for port in target {
-                        gates
-                            .get_mut(&port.gate_id)
-                            .expect("couldn't find target gate")
-                            .inputs[port.port_index] = outputs[index].clone();
+                        if let Port::GATEPORT(gate_port) = port {
+                            gates
+                                .get_mut(&gate_port.gate_id)
+                                .expect("couldn't find target gate")
+                                .inputs[gate_port.port_index] = outputs[index].clone();
+                        }
                     }
                 }
             } else {
@@ -87,7 +92,12 @@ fn dfs_visit(
 
     for target in &gates.get(&node).unwrap().targets {
         for port in target {
-            dfs_visit(port.gate_id, sorted_gates, temporary_gates, &gates);
+            match port {
+                Port::GATEPORT(gate_port) => {
+                    dfs_visit(gate_port.gate_id, sorted_gates, temporary_gates, &gates);
+                }
+                _ => {}
+            }
         }
     }
 

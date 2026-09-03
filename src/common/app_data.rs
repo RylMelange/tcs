@@ -29,20 +29,34 @@ impl AppData {
         }
     }
 
-    pub fn connect_gates(&mut self, outport: Port, inport: Port) {
-        if let Some(outgate) = self.gates.get_mut(&outport.gate_id) {
-            outgate.targets[outport.port_index].push(inport.clone());
-        } else {
-            // TODO: return real error
-            eprintln!("couldn't find in-gate to connect")
+    pub fn connect_gates(&mut self, outport: &Port, inport: &Port) {
+        match outport {
+            Port::GATEPORT(gate_port) => {
+                if let Some(outgate) = self.gates.get_mut(&gate_port.gate_id) {
+                    outgate.targets[gate_port.port_index].push(inport.clone());
+                } else {
+                    // TODO: return real error
+                    eprintln!("couldn't find in-gate to connect")
+                }
+            }
+            Port::MOUSEPORT => {}
+        };
+        self.renderer.wires.insert(inport.clone(), outport.clone());
+    }
+
+    pub fn disconnect_gates(&mut self, outport: &Port, inport: &Port) {
+        match outport {
+            Port::GATEPORT(gate_port) => {
+                if let Some(outgate) = self.gates.get_mut(&gate_port.gate_id) {
+                    outgate.targets.remove(gate_port.port_index);
+                } else {
+                    // TODO: return real error
+                    eprintln!("couldn't find in-gate to disconnect")
+                }
+            }
+            Port::MOUSEPORT => {}
         }
-        // if let Some(outgate) = self.gates.get_mut(&outport.gate_id) {
-        //     outgate.sources[inport.port_index].push(inport.clone());
-        // } else {
-        //     // TODO: return real error
-        //     eprintln!("couldn't find out-gate to connect")
-        // }
-        self.renderer.wires.insert(inport, outport);
+        self.renderer.wires.remove(&inport);
     }
 
     pub fn insert_gate(
@@ -75,9 +89,11 @@ impl AppData {
             .map(|t| t.init())
             .collect();
 
+        let size = definition.render_data.size;
+
         self.gates.insert(
             gate_id,
-            Gate::new(gate_id, gate_type_id, inputs, outputs, position),
+            Gate::new(gate_id, gate_type_id, inputs, outputs, position, size),
         );
     }
 }
