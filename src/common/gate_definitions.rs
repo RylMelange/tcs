@@ -107,9 +107,9 @@ pub fn default_definitions() -> GateDefinitions {
 
 pub enum GateImplementation {
     Builtin(BuiltinGate),
-    TruthTable(TruthTableGate),
-    Recursive(RecursiveGate),
-    Code(CodeGate),
+    // TruthTable(TruthTableGate),
+    // Recursive(RecursiveGate),
+    // Code(CodeGate),
 }
 
 pub struct GateSignature {
@@ -147,10 +147,10 @@ impl GateDefinition {
         self.verify_signature(inputs);
 
         match &self.implementation {
-            Builtin(gate) => gate.compute(&self.gate_type_id, inputs),
-            TruthTable(gate) => gate.compute(&self.gate_type_id, inputs),
-            Recursive(gate) => gate.compute(&self.gate_type_id, inputs),
-            Code(gate) => gate.compute(&self.gate_type_id, inputs),
+            Builtin(gate) => gate.compute(inputs),
+            // TruthTable(gate) => gate.compute(&self.gate_type_id, inputs),
+            // Recursive(gate) => gate.compute(&self.gate_type_id, inputs),
+            // Code(gate) => gate.compute(&self.gate_type_id, inputs),
         }
     }
 
@@ -172,50 +172,46 @@ pub struct BuiltinGate {
 }
 
 impl BuiltinGate {
-    pub fn compute(
-        &self,
-        gate_type_id: &GateTypeID,
-        inputs: &Vec<TernaryValue>,
-    ) -> Vec<TernaryValue> {
+    pub fn compute(&self, inputs: &Vec<TernaryValue>) -> Vec<TernaryValue> {
         (self.compute_function)(inputs)
     }
 }
 
-pub struct TruthTableGate {
-    truth_table: HashMap<Vec<TernaryValue>, Vec<TernaryValue>>,
-}
-impl TruthTableGate {
-    pub fn compute(
-        &self,
-        gate_type_id: &GateTypeID,
-        inputs: &Vec<TernaryValue>,
-    ) -> Vec<TernaryValue> {
-        if let Some(outputs) = self.truth_table.get(inputs) {
-            outputs.clone()
-        } else {
-            todo!("Unknown truthtable gate {gate_type_id}! (create an error someday)")
-        }
-    }
-}
-
-pub struct RecursiveGate {}
-impl RecursiveGate {
-    pub fn compute(
-        &self,
-        gate_type_id: &GateTypeID,
-        inputs: &Vec<TernaryValue>,
-    ) -> Vec<TernaryValue> {
-        todo!("recursive gates are not implemented yet");
-    }
-}
-
-pub struct CodeGate {}
-impl CodeGate {
-    pub fn compute(
-        &self,
-        gate_type_id: &GateTypeID,
-        inputs: &Vec<TernaryValue>,
-    ) -> Vec<TernaryValue> {
-        todo!("code gates are not implemented yet");
-    }
-}
+// pub struct TruthTableGate {
+//     truth_table: HashMap<Vec<TernaryValue>, Vec<TernaryValue>>,
+// }
+// impl TruthTableGate {
+//     pub fn compute(
+//         &self,
+//         gate_type_id: &GateTypeID,
+//         inputs: &Vec<TernaryValue>,
+//     ) -> Vec<TernaryValue> {
+//         if let Some(outputs) = self.truth_table.get(inputs) {
+//             outputs.clone()
+//         } else {
+//             todo!("Unknown truthtable gate {gate_type_id}! (create an error someday)")
+//         }
+//     }
+// }
+//
+// pub struct RecursiveGate {}
+// impl RecursiveGate {
+//     pub fn compute(
+//         &self,
+//         gate_type_id: &GateTypeID,
+//         inputs: &Vec<TernaryValue>,
+//     ) -> Vec<TernaryValue> {
+//         todo!("recursive gates are not implemented yet");
+//     }
+// }
+//
+// pub struct CodeGate {}
+// impl CodeGate {
+//     pub fn compute(
+//         &self,
+//         gate_type_id: &GateTypeID,
+//         inputs: &Vec<TernaryValue>,
+//     ) -> Vec<TernaryValue> {
+//         todo!("code gates are not implemented yet");
+//     }
+// }

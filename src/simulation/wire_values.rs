@@ -8,8 +8,8 @@ use crate::simulation::wire_values::TernaryType::*;
 #[derive(Clone, Eq, PartialEq, Hash, Debug, Copy)]
 pub enum TernaryType {
     Trit,
-    ThreeTrit,
-    NineTrit,
+    // ThreeTrit,
+    // NineTrit,
 }
 impl TernaryType {
     pub fn init(&self) -> TernaryValue {
@@ -26,8 +26,8 @@ impl Display for TernaryType {
             "{}",
             match self {
                 Trit => "Trit",
-                ThreeTrit => "ThreeTrits",
-                NineTrit => "NineTrits",
+                // ThreeTrit => "ThreeTrits",
+                // NineTrit => "NineTrits",
             }
         )
     }
@@ -63,10 +63,10 @@ impl TernaryValue {
         output
     }
 
-    pub fn increment(&mut self) {
-        self.value += 1;
-        self.wrap_value();
-    }
+    // pub fn increment(&mut self) {
+    //     self.value += 1;
+    //     self.wrap_value();
+    // }
 
     fn verify_type(&self) {
         match self.ternary_type {
@@ -75,16 +75,16 @@ impl TernaryValue {
                     todo!("implement a proper error")
                 }
             }
-            ThreeTrit => {
-                if self.value > 13 || self.value < -13 {
-                    todo!("implement a proper error")
-                }
-            }
-            NineTrit => {
-                if self.value > 9841 || self.value < -9841 {
-                    todo!("implement a proper error")
-                }
-            }
+            // ThreeTrit => {
+            //     if self.value > 13 || self.value < -13 {
+            //         todo!("implement a proper error")
+            //     }
+            // }
+            // NineTrit => {
+            //     if self.value > 9841 || self.value < -9841 {
+            //         todo!("implement a proper error")
+            //     }
+            // }
         }
     }
 
@@ -97,20 +97,20 @@ impl TernaryValue {
                     self.value -= 1;
                 }
             }
-            ThreeTrit => {
-                if self.value > 13 || self.value < -13 {
-                    self.value += 13;
-                    self.value %= 27;
-                    self.value -= 13;
-                }
-            }
-            NineTrit => {
-                if self.value > 9841 || self.value < -9841 {
-                    self.value += 9841;
-                    self.value %= 19683;
-                    self.value -= 9841;
-                }
-            }
+            // ThreeTrit => {
+            //     if self.value > 13 || self.value < -13 {
+            //         self.value += 13;
+            //         self.value %= 27;
+            //         self.value -= 13;
+            //     }
+            // }
+            // NineTrit => {
+            //     if self.value > 9841 || self.value < -9841 {
+            //         self.value += 9841;
+            //         self.value %= 19683;
+            //         self.value -= 9841;
+            //     }
+            // }
         }
     }
 }

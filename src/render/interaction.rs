@@ -135,9 +135,9 @@ fn try_drag_hovered_port(
                 }
             }
             GatePortType::OUTPORT => {}
-            GatePortType::INTERNAL => {
-                gate.inputs[hovered_port.port_index].increment();
-            }
+            // GatePortType::INTERNAL => {
+            //     gate.inputs[hovered_port.port_index].increment();
+            // }
         }
     }
     false

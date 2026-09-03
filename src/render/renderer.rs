@@ -10,13 +10,11 @@ use crate::{
 };
 use raylib::prelude::*;
 use std::collections::HashMap;
-const PORT_SIZE: Vector2 = Vector2 { x: 10.0, y: 10.0 };
-const PADDING: f32 = 10.0;
 
 #[derive(Clone)]
 pub struct GateRenderData {
     pub size: Vector2,
-    pub color: Color,
+    // pub color: Color,
     pub visible_inports: Option<i16>,
     pub inport_geometries: Vec<Rect>,
     pub outport_geometries: Vec<Rect>,
@@ -25,7 +23,7 @@ impl Default for GateRenderData {
     fn default() -> Self {
         Self {
             size: Vector2 { x: 100.0, y: 100.0 },
-            color: Color::MEDIUMTURQUOISE,
+            // color: Color::MEDIUMTURQUOISE,
             visible_inports: None,
             inport_geometries: vec![],
             outport_geometries: vec![],
@@ -35,7 +33,7 @@ impl Default for GateRenderData {
 
 pub enum Draggable {
     GATE(GateID),
-    PORT(Vector2,Port),
+    PORT(Vector2, Port),
     NONE,
 }
 
@@ -74,8 +72,20 @@ impl Renderer {
                 draw_gate_body(&mut d, position, &gate.size);
 
                 // TODO: change render_data to be within gate?
-                draw_ports(&mut d, position, inputs, &render_data.inport_geometries);
-                draw_ports(&mut d, position, outputs, &render_data.outport_geometries);
+                draw_ports(
+                    &mut d,
+                    position,
+                    inputs,
+                    &render_data.inport_geometries,
+                    &render_data.visible_inports,
+                );
+                draw_ports(
+                    &mut d,
+                    position,
+                    outputs,
+                    &render_data.outport_geometries,
+                    &None,
+                );
             } else {
                 eprintln!("could not find render_data in gate_definitions for {gate_id}")
             }
@@ -98,8 +108,13 @@ fn draw_ports(
     origin: &Vector2,
     values: &Vec<TernaryValue>,
     geometries: &Vec<Rect>,
+    visible_ports: &Option<i16>,
 ) {
-    for index in 0..geometries.len() {
+    let ports_number = match visible_ports {
+        Some(num) => *num as usize,
+        None => geometries.len(),
+    };
+    for index in 0..ports_number {
         let color = value_to_color(values[index].value);
         let geometry = geometries[index];
         d.draw_rectangle_v(
@@ -162,9 +177,9 @@ fn get_port_position(
             let (geometries, values) = match gate_port.port_type {
                 GatePortType::INPORT => (&render_data.inport_geometries, &gate.inputs),
                 GatePortType::OUTPORT => (&render_data.outport_geometries, &gate.outputs),
-                GatePortType::INTERNAL => {
-                    todo!() /*render_data.internal_geometries*/
-                }
+                // GatePortType::INTERNAL => {
+                //     todo!() /*render_data.internal_geometries*/
+                // }
             };
             (
                 gate.position + geometries[gate_port.port_index].pos,

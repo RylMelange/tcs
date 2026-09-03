@@ -12,20 +12,12 @@ pub enum Port {
 pub enum GatePortType {
     INPORT,
     OUTPORT,
-    INTERNAL,
+    // TODO:
+    // INTERNAL,
 }
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub struct GatePort {
     pub gate_id: GateID,
     pub port_index: usize,
     pub port_type: GatePortType,
-}
-impl GatePort {
-    pub fn new(gate_id: GateID, port_type: GatePortType, port_index: usize) -> Self {
-        Self {
-            gate_id,
-            port_index,
-            port_type,
-        }
-    }
 }
