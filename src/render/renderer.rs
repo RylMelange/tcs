@@ -35,30 +35,33 @@ impl Default for GateRenderData {
 
 pub enum Draggable {
     GATE(GateID),
-    PORT,
+    PORT(Vector2,Port),
     NONE,
 }
 
 pub struct Renderer {
     pub wires: HashMap<Port, Port>,
-    pub mouse_start: Vector2,
     pub dragged_component: Draggable,
 }
 impl Renderer {
     pub fn new() -> Self {
         Self {
             wires: HashMap::new(),
-            mouse_start: Vector2::zero(),
             dragged_component: Draggable::NONE,
         }
     }
 
     pub fn render_all(
         &mut self,
-        mut d: RaylibDrawHandle,
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
         gate_definitions: &GateDefinitions,
         gates: &HashMap<GateID, Gate>,
     ) {
+        // TODO: is there a better way to do this?
+        let mouse_position = rl.get_mouse_position();
+
+        let mut d = &mut rl.begin_drawing(&thread);
         d.clear_background(Color::new(30, 30, 50, 255));
 
         for (gate_id, gate) in gates {
@@ -79,7 +82,7 @@ impl Renderer {
         }
 
         for (inport, outport) in &self.wires {
-            draw_wire(&mut d, outport, inport, gates, gate_definitions);
+            draw_wire(d, mouse_position, outport, inport, gates, gate_definitions);
         }
 
         d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
@@ -118,13 +121,15 @@ fn value_to_color(value: i16) -> Color {
 
 fn draw_wire(
     d: &mut RaylibDrawHandle,
+    mouse_position: Vector2,
     outport: &Port,
     inport: &Port,
     gates: &HashMap<GateID, Gate>,
     gate_definitions: &GateDefinitions,
 ) {
-    let (origin_position, value) = get_port_position(outport, gates, gate_definitions);
-    let (target_position, _) = get_port_position(inport, gates, gate_definitions);
+    let (origin_position, value) =
+        get_port_position(mouse_position, gates, gate_definitions, outport);
+    let (target_position, _) = get_port_position(mouse_position, gates, gate_definitions, inport);
 
     // d.draw_line_bezier(origin_position, target_position, 6.0, value_to_color(value));
     d.draw_spline_bezier_cubic(
@@ -140,9 +145,10 @@ fn draw_wire(
 }
 
 fn get_port_position(
-    port: &Port,
+    mouse_position: Vector2,
     gates: &HashMap<GateID, Gate>,
     gate_definitions: &GateDefinitions,
+    port: &Port,
 ) -> (Vector2, i16) {
     match port {
         Port::GATEPORT(gate_port) => {
@@ -165,8 +171,6 @@ fn get_port_position(
                 values[gate_port.port_index].value,
             )
         }
-        Port::MOUSEPORT => {
-            todo!()
-        }
+        Port::MOUSEPORT => (mouse_position, 0),
     }
 }

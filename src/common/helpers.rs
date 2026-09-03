@@ -1,5 +1,3 @@
-use raylib::ffi::Vector2;
-
 use crate::simulation::gates::GateID;
 
 pub type Target = Vec<Port>;

@@ -48,7 +48,7 @@ impl AppData {
         match outport {
             Port::GATEPORT(gate_port) => {
                 if let Some(outgate) = self.gates.get_mut(&gate_port.gate_id) {
-                    outgate.targets.remove(gate_port.port_index);
+                    outgate.targets[gate_port.port_index].retain(|port| port != inport);
                 } else {
                     // TODO: return real error
                     eprintln!("couldn't find in-gate to disconnect")
