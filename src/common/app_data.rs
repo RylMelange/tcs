@@ -42,6 +42,10 @@ impl AppData {
             Port::MOUSEPORT => {}
         };
         self.renderer.wires.insert(inport.clone(), outport.clone());
+        if let Port::GATEPORT(ingateport) = inport {
+            self.simulator.insert_pending(ingateport.gate_id);
+            self.simulator.request_resort();
+        }
     }
 
     pub fn disconnect_gates(&mut self, outport: &Port, inport: &Port) {
@@ -57,15 +61,22 @@ impl AppData {
             Port::MOUSEPORT => {}
         }
         self.renderer.wires.remove(inport);
+        self.simulator.request_resort();
     }
 
     pub fn insert_gate(
         &mut self,
-        gate_id: GateID,
+        optional_gate_id: Option<GateID>,
         definition_name: String,
         initial_inputs_option: Option<Ports>,
         position: Vector2,
     ) {
+        // TODO: surely there's a better way
+        let mut gate_id = optional_gate_id.unwrap_or(GateID(rand::random()));
+        while self.gates.contains_key(&gate_id) {
+            gate_id = GateID(rand::random());
+        }
+
         // TODO: don't unwrap
         let definition = self.gate_definitions.get(&definition_name).unwrap();
         let gate_type_id = definition.gate_type_id.clone();

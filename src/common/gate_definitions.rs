@@ -6,7 +6,7 @@ use crate::{
         TernaryValue,
     },
 };
-use raylib::ffi::{Rectangle, Vector2};
+use raylib::ffi::{Color, Rectangle, Vector2};
 use std::collections::HashMap;
 
 // TODO: move to objects or smth
@@ -47,6 +47,7 @@ fn insert_implementation(implementations: &mut GateDefinitions, definition: Gate
 
 pub fn default_definitions() -> GateDefinitions {
     let mut implementations = HashMap::new();
+
     insert_implementation(
         &mut implementations,
         GateDefinition::new(
@@ -59,10 +60,12 @@ pub fn default_definitions() -> GateDefinitions {
             GateRenderData {
                 visible_inports: Some(0),
                 outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
+                color: Color::PALEGREEN,
                 ..Default::default()
             },
         ),
     );
+
     insert_implementation(
         &mut implementations,
         GateDefinition::new(
@@ -77,10 +80,11 @@ pub fn default_definitions() -> GateDefinitions {
             },
         ),
     );
+
     insert_implementation(
         &mut implementations,
         GateDefinition::new(
-            "and",
+            "rotand",
             vec![Trit; 2],
             vec![Trit],
             Builtin(BuiltinGate {
@@ -98,6 +102,7 @@ pub fn default_definitions() -> GateDefinitions {
                     Rect::new(20.0, 70.0, 20.0, 20.0),
                 ],
                 outport_geometries: vec![Rect::new(85.0, 50.0, 20.0, 20.0)],
+                color: Color::PLUM,
                 ..Default::default()
             },
         ),

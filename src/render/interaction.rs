@@ -18,6 +18,9 @@ use crate::{
     simulation::gates::{Gate, GateID},
 };
 pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
+    if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_RIGHT) {
+        app_data.insert_gate(None, "rotand".to_string(), None, rl.get_mouse_position());
+    }
     if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
         let gates = &mut app_data.gates;
 
@@ -39,6 +42,7 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
                         .expect("couldn't get the hovered gate");
                     if let Some(inport) =
                         find_hovered_gate_port(rl, gate, &app_data.gate_definitions)
+                        && inport.port_type == GatePortType::INPORT
                     {
                         // TODO: check if a wire is connected to the inport we just found, and
                         // disconnect it.

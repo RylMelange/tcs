@@ -20,6 +20,10 @@ impl Simulator {
         }
     }
 
+    pub fn request_resort(&mut self) {
+        self.sorted_gates = None;
+    }
+
     pub fn insert_pending(&mut self, gate_id: GateID) {
         self.pending_gates.push(gate_id)
     }

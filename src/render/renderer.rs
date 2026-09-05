@@ -14,7 +14,7 @@ use std::collections::HashMap;
 #[derive(Clone)]
 pub struct GateRenderData {
     pub size: Vector2,
-    // pub color: Color,
+    pub color: Color,
     pub visible_inports: Option<i16>,
     pub inport_geometries: Vec<Rect>,
     pub outport_geometries: Vec<Rect>,
@@ -23,7 +23,7 @@ impl Default for GateRenderData {
     fn default() -> Self {
         Self {
             size: Vector2 { x: 100.0, y: 100.0 },
-            // color: Color::MEDIUMTURQUOISE,
+            color: Color::BLUEVIOLET,
             visible_inports: None,
             inport_geometries: vec![],
             outport_geometries: vec![],
@@ -69,7 +69,7 @@ impl Renderer {
                 let inputs = &gate.inputs;
                 let outputs = &gate.outputs;
 
-                draw_gate_body(d, position, &gate.size);
+                draw_gate_body(d, position, &gate.size, render_data.color);
 
                 // TODO: change render_data to be within gate?
                 draw_ports(
@@ -99,9 +99,9 @@ impl Renderer {
     }
 }
 
-fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, size: &Vector2) {
+fn draw_gate_body(d: &mut RaylibDrawHandle, position: &Vector2, size: &Vector2, color: Color) {
     // TODO: draw such that "position" of render_data used is relative to camera
-    d.draw_rectangle_v(*position, *size, Color::BLUEVIOLET);
+    d.draw_rectangle_v(*position, *size, color );
 }
 fn draw_ports(
     d: &mut RaylibDrawHandle,
