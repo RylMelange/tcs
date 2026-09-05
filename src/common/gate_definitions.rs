@@ -52,6 +52,7 @@ pub fn default_definitions() -> GateDefinitions {
         &mut implementations,
         GateDefinition::new(
             "source",
+            // TODO: change this to "internal"
             vec![Trit],
             vec![Trit],
             Builtin(BuiltinGate {
@@ -69,6 +70,42 @@ pub fn default_definitions() -> GateDefinitions {
     insert_implementation(
         &mut implementations,
         GateDefinition::new(
+            "relay",
+            vec![Trit],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| vec![a[0]],
+            }),
+            GateRenderData {
+                inport_geometries: vec![Rect::new(20.0, 50.0, 20.0, 20.0)],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
+                color: Color::PALEGOLDENROD,
+                ..Default::default()
+            },
+        ),
+    );
+
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
+            "negate",
+            vec![Trit],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| vec![-a[0]],
+            }),
+            GateRenderData {
+                inport_geometries: vec![Rect::new(20.0, 50.0, 20.0, 20.0)],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
+                color: Color::PALEVIOLETRED,
+                ..Default::default()
+            },
+        ),
+    );
+
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
             "increment",
             vec![Trit],
             vec![Trit],
@@ -76,6 +113,36 @@ pub fn default_definitions() -> GateDefinitions {
                 compute_function: |a| vec![a[0] + 1],
             }),
             GateRenderData {
+                inport_geometries: vec![Rect::new(20.0, 50.0, 20.0, 20.0)],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
+                color: Color::LIGHTSLATEGRAY,
+                ..Default::default()
+            },
+        ),
+    );
+
+    insert_implementation(
+        &mut implementations,
+        GateDefinition::new(
+            "and",
+            vec![Trit; 2],
+            vec![Trit],
+            Builtin(BuiltinGate {
+                compute_function: |a| {
+                    if a[0] == a[1] {
+                        vec![a[0]]
+                    } else {
+                        vec![TernaryValue::new(Trit, 0)]
+                    }
+                },
+            }),
+            GateRenderData {
+                inport_geometries: vec![
+                    Rect::new(20.0, 30.0, 20.0, 20.0),
+                    Rect::new(20.0, 70.0, 20.0, 20.0),
+                ],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
+                color: Color::LIGHTCYAN,
                 ..Default::default()
             },
         ),
@@ -101,12 +168,13 @@ pub fn default_definitions() -> GateDefinitions {
                     Rect::new(20.0, 30.0, 20.0, 20.0),
                     Rect::new(20.0, 70.0, 20.0, 20.0),
                 ],
-                outport_geometries: vec![Rect::new(85.0, 50.0, 20.0, 20.0)],
+                outport_geometries: vec![Rect::new(80.0, 50.0, 20.0, 20.0)],
                 color: Color::PLUM,
                 ..Default::default()
             },
         ),
     );
+
     implementations
 }
 

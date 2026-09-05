@@ -1,6 +1,5 @@
 use std::{
-    fmt::{Debug, Display},
-    ops::Add,
+    fmt::{Debug, Display}, ops::{Add, Neg},
 };
 
 use crate::simulation::wire_values::TernaryType::*;
@@ -47,6 +46,16 @@ impl Add<i16> for TernaryValue {
         output
     }
 }
+impl Neg for TernaryValue {
+    type Output = TernaryValue;
+    fn neg(self) -> Self::Output {
+        let mut output = self;
+        output.value = -output.value;
+        output.wrap_value();
+        output
+    }
+}
+
 impl Debug for TernaryValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.ternary_type, self.value)

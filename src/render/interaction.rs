@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use raylib::{
     RaylibHandle,
-    ffi::{MouseButton, Rectangle},
+    ffi::{KeyboardKey, MouseButton, Rectangle},
 };
 
 use crate::{
@@ -18,10 +18,15 @@ use crate::{
     simulation::gates::{Gate, GateID},
 };
 pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
+    // TODO: maybe move hovered_gate out here as a more "globally" accessible variable
+
     if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_RIGHT) {
         app_data.insert_gate(None, "rotand".to_string(), None, rl.get_mouse_position());
     }
+
     if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
+        // TODO: instead of gates.get_mut, it should be a function in app_data find_gate or
+        // smth
         let gates = &mut app_data.gates;
 
         if let Some(hovered_gate_id) = find_hovered_gate(rl, gates)
@@ -66,6 +71,8 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
         let gates = &mut app_data.gates;
         match app_data.renderer.dragged_component {
             Draggable::GATE(gate_id) => {
+                // TODO: instead of gates.get_mut, it should be a function in app_data find_gate or
+                // smth
                 let gate = gates.get_mut(&gate_id).expect("couldn't find gate to drag");
                 gate.position += rl.get_mouse_delta();
             }
@@ -73,6 +80,23 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
                 position += rl.get_mouse_delta();
             }
             Draggable::NONE => {}
+        }
+    }
+
+    if rl.is_key_pressed(KeyboardKey::KEY_I) {
+        app_data.insert_gate(None, "increment".to_string(), None, rl.get_mouse_position());
+    } else if rl.is_key_pressed(KeyboardKey::KEY_R) {
+        app_data.insert_gate(None, "relay".to_string(), None, rl.get_mouse_position());
+    } else if rl.is_key_pressed(KeyboardKey::KEY_N) {
+        app_data.insert_gate(None, "negate".to_string(), None, rl.get_mouse_position());
+    } else if rl.is_key_pressed(KeyboardKey::KEY_A) {
+        app_data.insert_gate(None, "and".to_string(), None, rl.get_mouse_position());
+    } else if rl.is_key_pressed(KeyboardKey::KEY_BACKSPACE) {
+        // TODO: instead of gates.get_mut, it should be a function in app_data find_gate or
+        // smth
+        let gates = &mut app_data.gates;
+        if let Some(hovered_gate_id) = find_hovered_gate(rl, gates) {
+            app_data.remove_gate(hovered_gate_id);
         }
     }
 }

@@ -1,7 +1,7 @@
 use crate::{
     common::{
         gate_definitions::{GateDefinitions, default_definitions},
-        helpers::Port,
+        helpers::{GatePort, GatePortType, Port},
     },
     render::renderer::Renderer,
     simulation::{
@@ -106,5 +106,44 @@ impl AppData {
             gate_id,
             Gate::new(gate_id, gate_type_id, inputs, outputs, position, size),
         );
+    }
+
+    pub fn remove_gate(&mut self, gate_id: GateID) {
+        if let Some(gate) = self.gates.get(&gate_id) {
+
+            let mut ports_to_remove = vec![];
+            for (port_index, _) in gate.inputs.iter().enumerate() {
+                let inport = Port::GATEPORT(GatePort {
+                    gate_id,
+                    port_index,
+                    port_type: GatePortType::INPORT,
+                });
+                if let Some(outport) = self.renderer.wires.get(&inport) {
+                    ports_to_remove.push((outport.clone(), inport));
+                }
+            }
+            // TODO: this doesn't seem like the right way to do things
+            for (outport, inport) in ports_to_remove {
+                self.disconnect_gates(&outport, &inport);
+            }
+
+            self.renderer.wires.retain(|inport, outport| {
+                if let Port::GATEPORT(port) = inport {
+                    if port.gate_id == gate_id {
+                        return false;
+                    }
+                };
+                if let Port::GATEPORT(port) = outport {
+                    if port.gate_id == gate_id {
+                        return false;
+                    }
+                };
+                true
+            });
+
+            self.gates.remove(&gate_id);
+            self.simulator.remove_pending(&gate_id);
+            self.simulator.request_resort();
+        }
     }
 }

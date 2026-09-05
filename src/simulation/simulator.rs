@@ -24,6 +24,10 @@ impl Simulator {
         self.sorted_gates = None;
     }
 
+    pub fn remove_pending(&mut self, gate_id: &GateID) {
+        self.pending_gates.retain(|id| id != gate_id)
+    }
+
     pub fn insert_pending(&mut self, gate_id: GateID) {
         self.pending_gates.push(gate_id)
     }
@@ -71,6 +75,7 @@ impl Simulator {
         let mut sorted_gates = vec![];
         let mut temporary_gates = HashSet::new();
         for gate in &self.pending_gates {
+            println!("pending gate is: {}", gate);
             dfs_visit(*gate, &mut sorted_gates, &mut temporary_gates, gates);
         }
         sorted_gates.reverse();
@@ -97,6 +102,7 @@ fn dfs_visit(
     for target in &gates.get(&node).unwrap().targets {
         for port in target {
             if let Port::GATEPORT(gate_port) = port {
+                println!("target gate is: {:?}", port);
                 dfs_visit(gate_port.gate_id, sorted_gates, temporary_gates, gates);
             }
         }

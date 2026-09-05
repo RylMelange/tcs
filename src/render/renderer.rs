@@ -95,7 +95,7 @@ impl Renderer {
             draw_wire(d, mouse_position, outport, inport, gates, gate_definitions);
         }
 
-        d.draw_text("GUI goes here", 12, 12, 35, Color::RAYWHITE);
+        d.draw_text("This is version 0.0.0.0.0.5", 12, 12, 35, Color::RAYWHITE);
     }
 }
 

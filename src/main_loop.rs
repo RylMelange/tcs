@@ -2,7 +2,7 @@ use crate::{common::app_data::AppData, render::interaction::handle_inputs};
 
 pub fn render_loop(app_data: &mut AppData) {
     let (mut rl, thread) = raylib::init()
-        .size(640, 480)
+        .size(1200, 800)
         .title("Ternary Circuit Simulator")
         .build();
 

@@ -24,17 +24,23 @@ fn main() {
     app_data.insert_gate(
         Some(GateID(0)),
         "source".to_string(),
-        Some(vec![TernaryValue::new(Trit, 1)]),
+        Some(vec![TernaryValue::new(Trit, -1)]),
         Vector2::new(100.0, 100.0),
     );
     app_data.insert_gate(
         Some(GateID(1)),
         "source".to_string(),
-        Some(vec![TernaryValue::new(Trit, 1)]),
+        Some(vec![TernaryValue::new(Trit, 0)]),
         Vector2::new(100.0, 300.0),
     );
     app_data.insert_gate(
         Some(GateID(2)),
+        "source".to_string(),
+        Some(vec![TernaryValue::new(Trit, 1)]),
+        Vector2::new(100.0, 500.0),
+    );
+    app_data.insert_gate(
+        Some(GateID(3)),
         "rotand".to_string(),
         None,
         Vector2::new(300.0, 200.0),
@@ -47,7 +53,7 @@ fn main() {
             port_type: OUTPORT,
         }),
         &Port::GATEPORT(GatePort {
-            gate_id: GateID(2),
+            gate_id: GateID(3),
             port_index: 0,
             port_type: INPORT,
         }),
@@ -59,7 +65,7 @@ fn main() {
             port_type: OUTPORT,
         }),
         &Port::GATEPORT(GatePort {
-            gate_id: GateID(2),
+            gate_id: GateID(3),
             port_index: 1,
             port_type: INPORT,
         }),
@@ -67,6 +73,7 @@ fn main() {
 
     app_data.simulator.insert_pending(GateID(0));
     app_data.simulator.insert_pending(GateID(1));
+    app_data.simulator.insert_pending(GateID(2));
 
     render_loop(&mut app_data);
 }
