@@ -29,8 +29,29 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
     } else if rl.is_mouse_button_released(MouseButton::MOUSE_BUTTON_LEFT) {
         match app_data.renderer.dragged_component {
             Draggable::GATE(_) => {}
-            Draggable::PORT(_, ref outport) => {
+            Draggable::INPORT(_, ref outport) => {
+                let outport = outport.clone();
                 app_data.disconnect_gates(&outport.clone(), &Port::MOUSEPORT);
+                if let Some(hovered_gate_id) = find_hovered_gate(rl, &app_data.gates) {
+                    let gate = app_data
+                        .gates
+                        .get(&hovered_gate_id)
+                        .expect("couldn't get the hovered gate");
+                    if let Some(inport) =
+                        find_hovered_gate_port(rl, gate, &app_data.gate_definitions)
+                    {
+                        // TODO: check if a wire is connected to the inport we just found, and
+                        // disconnect it.
+                        if let Some(Port::GATEPORT(previous_outport)) =
+                            app_data.renderer.wires.get(&Port::GATEPORT(inport.clone()))
+                        {
+                            let previous_outgate = app_data.gates.get_mut(&previous_outport.gate_id).expect("couldn't find the original out-gate of the wire we're replacing");
+                            previous_outgate.targets[previous_outport.port_index]
+                                .retain(|port| port != &Port::GATEPORT(inport.clone()));
+                        }
+                        app_data.connect_gates(&outport, &Port::GATEPORT(inport));
+                    }
+                }
             }
             Draggable::NONE => {}
         }
@@ -44,7 +65,7 @@ pub fn handle_inputs(rl: &mut RaylibHandle, app_data: &mut AppData) {
                 let gate = gates.get_mut(&gate_id).expect("couldn't find gate to drag");
                 gate.position += rl.get_mouse_delta();
             }
-            Draggable::PORT(mut position, _) => {
+            Draggable::INPORT(mut position, _) => {
                 position += rl.get_mouse_delta();
             }
             Draggable::NONE => {}
@@ -89,7 +110,7 @@ fn find_hovered_gate_port(
             });
         }
     }
-    for (index, outport) in definition.render_data.inport_geometries.iter().enumerate() {
+    for (index, outport) in definition.render_data.outport_geometries.iter().enumerate() {
         if Rectangle::new(
             outport.pos.x - outport.size.x / 2.0 + gate.position.x,
             outport.pos.y - outport.size.y / 2.0 + gate.position.y,
@@ -119,24 +140,29 @@ fn try_drag_hovered_port(
     if let Some(hovered_port) = find_hovered_gate_port(rl, gate, &app_data.gate_definitions) {
         match hovered_port.port_type {
             GatePortType::INPORT => {
-                // TODO: *port == &port doesn't seem right
                 if let Some(wire) = app_data
                     .renderer
                     .wires
                     .iter()
                     .find(|(port, _)| *port == &GATEPORT(hovered_port.clone()))
                 {
-                    let (inport, outport) = (wire.0.clone(), wire.1.clone());
+                    let outport = wire.1.clone();
+                    let inport = GATEPORT(hovered_port);
                     app_data.disconnect_gates(&outport, &inport);
                     app_data.connect_gates(&outport, &Port::MOUSEPORT);
                     app_data.renderer.dragged_component =
-                        Draggable::PORT(rl.get_mouse_position(), outport);
+                        Draggable::INPORT(rl.get_mouse_position(), outport);
                     return true;
                 }
             }
-            GatePortType::OUTPORT => {} // GatePortType::INTERNAL => {
-                                        //     gate.inputs[hovered_port.port_index].increment();
-                                        // }
+            GatePortType::OUTPORT => {
+                app_data.connect_gates(&GATEPORT(hovered_port.clone()), &Port::MOUSEPORT);
+                app_data.renderer.dragged_component =
+                    Draggable::INPORT(rl.get_mouse_position(), GATEPORT(hovered_port));
+                return true;
+            } // GatePortType::INTERNAL => {
+              //     gate.inputs[hovered_port.port_index].increment();
+              // }
         }
     }
     false

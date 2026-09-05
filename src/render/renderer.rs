@@ -33,7 +33,7 @@ impl Default for GateRenderData {
 
 pub enum Draggable {
     GATE(GateID),
-    PORT(Vector2, Port),
+    INPORT(Vector2, Port),
     NONE,
 }
 
@@ -59,7 +59,7 @@ impl Renderer {
         // TODO: is there a better way to do this?
         let mouse_position = rl.get_mouse_position();
 
-        let mut d = &mut rl.begin_drawing(thread);
+        let d = &mut rl.begin_drawing(thread);
         d.clear_background(Color::new(30, 30, 50, 255));
 
         for (gate_id, gate) in gates {
